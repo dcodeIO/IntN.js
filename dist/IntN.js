@@ -189,7 +189,7 @@
         // Signed evaluation
 
         /**
-         * Tests if this Int is signed.
+         * Tests if this IntN is signed.
          * @returns {boolean}
          * @expose
          */
@@ -198,7 +198,7 @@
         };
 
         /**
-         * Tests if this Int is unsigned.
+         * Tests if this IntN is unsigned.
          * @returns {boolean}
          * @expose
          */
@@ -322,7 +322,7 @@
         };
 
         /**
-         * Tests if this IntN is less the specified.
+         * Tests if this IntN is less than (&lt;) the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
          * @expose
@@ -332,7 +332,7 @@
         };
 
         /**
-         * Tests if this IntN is less than or equal the specified.
+         * Tests if this IntN is less than or equal (&lt;=) the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
          * @expose
@@ -342,7 +342,7 @@
         };
 
         /**
-         * Tests if this IntN is greater than the specified.
+         * Tests if this IntN is greater than (&gt;) the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
          * @expose
@@ -352,7 +352,7 @@
         };
 
         /**
-         * Tests if this IntN is greater than or equal the specified.
+         * Tests if this IntN is greater than or equal (&gt;=) the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
          * @expose
@@ -557,7 +557,7 @@
         // Arithmetic operations
 
         /**
-         * Add the specified to this IntN (+) and returns the result.
+         * Adds the specified to this IntN (+) and returns the result.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
          * @expose

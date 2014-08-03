@@ -302,7 +302,7 @@ Tests if this IntN is (unsigned or) positive.
 
 #### IntN#isSigned()
 
-Tests if this Int is signed.
+Tests if this IntN is signed.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -310,7 +310,7 @@ Tests if this Int is signed.
 
 #### IntN#isUnsigned()
 
-Tests if this Int is unsigned.
+Tests if this IntN is unsigned.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -489,6 +489,37 @@ Performs a bitwise xor (^) operation and returns the result.
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| **@returns**    | *!IntN*         |
+
+---
+
+### Aliases
+
+```
+// General utility
+'isIntN': ['isInt'+nBits]
+
+// Arithmetic evaluation
+'compare': ['comp'],
+'equals': ['eq', 'equal'],
+'notEquals': ['ne', 'notEqual'],
+'lessThan': ['lt', 'less'],
+'lessThanEqual': ['lte', 'lessThanOrEqual'],
+'greaterThan': ['gt', 'greater'],
+'greaterThanEqual': ['gte', 'greaterThanOrEqual'],
+
+// Bitwise operations
+'shiftLeft': ['lsh', 'leftShift'],
+'shiftRight': ['rsh', 'rightShift'],
+
+// Arithmetic operations
+'add': ['plus'],
+'negate': ['neg'],
+'subtract': ['sub', 'minus'],
+'absolute': ['abs'],
+'multiply': ['mult'],
+'divide': ['div'],
+'modulo': ['mod']
+```
 
 **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) - Logo derived from [W3C HTML5 Logos](http://www.w3.org/html/logo/) (CC A 3.0)
