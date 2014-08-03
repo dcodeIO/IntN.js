@@ -511,7 +511,7 @@ to use or simply to to keep your code small:
 * **equals**: eq, equal, ==
 * **notEquals**: ne, notEqual, !=
 * **lessThan**: lt, less, &lt;
-* **lessThanEqual**: lte, lessThanOrEqual, &lt=
+* **lessThanEqual**: lte, lessThanOrEqual, &lt;=
 * **greaterThan**: gt, greater, &gt;
 * **greaterThanEqual**: gte, greaterThanOrEqual, &gt;=
 
@@ -521,7 +521,7 @@ to use or simply to to keep your code small:
 * **and**: &
 * **or**: |
 * **xor**: ^
-* **shiftLeft**: lsh, leftShift, &lt;%lt;
+* **shiftLeft**: lsh, leftShift, &lt;&lt;
 * **shiftRight**: rsh, rightShift, &gt;&gt;
 * **shiftRightUnsigned**: rshu, rightShiftUnsigned, &gt;&gt;&gt;
 
