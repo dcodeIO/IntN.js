@@ -1,0 +1,28 @@
+{
+    "name": "intn",
+    "version": "0.1.0",
+    "author": "Daniel Wirtz <dcode@dcode.io>",
+    "description": "A class for representing arbitrary size integers, signed and unsigned.",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dcodeIO/IntN.js.git"
+    },
+    "keywords": ["math"],
+    "dependencies": {
+    },
+    "devDependencies": {
+        "testjs": "latest",
+        "closurecompiler": "latest"
+    },
+    "license": "Apache-2.0",
+    "engines": {
+        "node": ">=0.6"
+    },
+    "scripts": {
+        "test": "node node_modules/testjs/bin/testjs tests/suite.js",
+        "build": "cp src/IntN.js dist/IntN.js",
+        "compile": "ccjs dist/IntN.js --compilation_level=ADVANCED_OPTIMIZATIONS --create_source_map=dist/IntN.min.map --source_map_format=V3 --externs=externs/minimal-env.js > dist/IntN.min.js",
+        "make": "npm run-script build && npm run-script compile && npm test"
+    }
+}
