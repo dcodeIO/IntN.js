@@ -95,10 +95,10 @@ The alias names of static and prototype methods.
 |-----------------|-----------------|
 | **@type**       | *!{statics: !Object.&lt;string,!Array.&lt;string&gt;&gt;, prototype: !Object.&lt;string,!Array.&lt;string&gt;&gt;}* |
 
-#### IntN._divide(dividend, divisor)
+#### IntN.divide(dividend, divisor)
 
 Divides the specified dividend by the specified divisor. This method is used internally by [IntN#divide](#intndivideother)
-and [IntN#modulo](#intnmoduloother) and is exposed statically in case you require the result as well as the remainder.
+and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the result and the remainder are required.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -128,7 +128,7 @@ Constructs an IntN from a number value.
 
 #### IntN.fromString(value, unsigned=, radix=)
 
-Converts a string using the specified radix to an Int.
+Converts a string using the specified radix to an IntN.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -183,7 +183,7 @@ Returns this IntN's absolute value as an unsigned IntN.
 
 #### IntN#add(other)
 
-Add the specified to this IntN (+) and returns the result.
+Adds the specified to this IntN and returns the result.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -210,7 +210,7 @@ Compares this IntN with the specified.
 
 #### IntN#divide(other)
 
-Divides this IntN by the specified (/) and returns the result.
+Divides this IntN by the specified and returns the result.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -228,7 +228,7 @@ Tests if this IntN equals the specified.
 
 #### IntN#greaterThan(other)
 
-Tests if this IntN is greater than the specified.
+Tests if this IntN is greater than (&gt;) the specified.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -237,7 +237,7 @@ Tests if this IntN is greater than the specified.
 
 #### IntN#greaterThanEqual(other)
 
-Tests if this IntN is greater than or equal the specified.
+Tests if this IntN is greater than or equal (&gt;=) the specified.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -278,7 +278,7 @@ Tests if this IntN is (unsigned or) positive.
 
 #### IntN#isSigned()
 
-Tests if this Int is signed.
+Tests if this IntN is signed.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -286,7 +286,7 @@ Tests if this Int is signed.
 
 #### IntN#isUnsigned()
 
-Tests if this Int is unsigned.
+Tests if this IntN is unsigned.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -302,7 +302,7 @@ Tests if this IntN is zero.
 
 #### IntN#lessThan(other)
 
-Tests if this IntN is less the specified.
+Tests if this IntN is less than (&lt;) the specified.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -311,7 +311,7 @@ Tests if this IntN is less the specified.
 
 #### IntN#lessThanEqual(other)
 
-Tests if this IntN is less than or equal the specified.
+Tests if this IntN is less than or equal (&lt;=) the specified.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -320,7 +320,7 @@ Tests if this IntN is less than or equal the specified.
 
 #### IntN#modulo(other)
 
-Divides this IntN by the specified (%) and returns the remainder.
+Returns the remainder of the division of this IntN by the specified.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -346,7 +346,7 @@ Negates this IntN (*-1) and returns the result.
 
 #### IntN#not()
 
-Performs the bitwise not (~) operation and returns the resulting Int.
+Performs a bitwise not (~) operation and returns the result.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -400,17 +400,17 @@ Performs an unsigned shift right (&gt;&gt;&gt;) operation and returns the result
 
 #### IntN#subtract(other)
 
-Subtracts the specified from this IntN (-) and returns the result.
+Subtracts the specified from this IntN and returns the result.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | other           | *!IntN &#124; number &#124; string* | Other number 
 | **@returns**    | *!IntN*         | 
 
-#### IntN#toBinary(spaces=)
+#### IntN#toDebug(spaces=)
 
-Converts this IntN to its full binary representation. This returns N binary digits for testing and debugging
-and is not equivalent to binary [IntN#toString](#intntostringradix).
+Converts this IntN to its full binary representation. This returns N (number of bits) binary digits for
+testing and debugging, followed by the character `U` if unsigned.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------

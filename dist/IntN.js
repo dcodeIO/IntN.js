@@ -119,7 +119,7 @@
                 return IntN.fromNumber(obj);
             else if (typeof obj === 'string')
                 return IntN.fromString(obj);
-            else if (obj && obj instanceof IntN)
+            else if (obj && obj instanceof IntN && obj.bytes.length == nBytes)
                 return obj;
             // Throws for undefined, null, bytes not an array (in constructor)
             // Fills smaller, truncates larger N (does not respect sign)
@@ -435,7 +435,7 @@
         // Bitwise operations
 
         /**
-         * Performs the bitwise not (~) operation and returns the resulting Int.
+         * Performs a bitwise not (~) operation and returns the result.
          * @returns {!IntN}
          * @expose
          */
@@ -529,8 +529,7 @@
             numBits %= 8; // Byte level bit skips
             var bytes = zeroes.slice(0, nBytes), i;
             if (!logical && (this.bytes[maxIndex] & 0x80) === 0x80) {
-                var k;
-                for (i=nBytes-1, k=nBytes-numBytes-1; i>=k; --i)
+                var k; for (i=nBytes-1, k=nBytes-numBytes-1; i>=k; --i)
                     bytes[i] = 0xff;
                 bytes[++i /* !k */] = (bytes[i] << (7-numBits)) & 0xff;
             }
@@ -557,7 +556,7 @@
         // Arithmetic operations
 
         /**
-         * Adds the specified to this IntN (+) and returns the result.
+         * Adds the specified to this IntN and returns the result.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
          * @expose
@@ -570,12 +569,12 @@
             if (this.isZero())
                 return this.unsigned ? other.toUnsigned() : other.toSigned();
             var carry = this.and(other),
-                result = this.xor(other);
-            var shifted;
+                result = this.xor(other),
+                shifted;
             while (!carry.isZero())
                 shifted = carry.shiftLeft(1),
-                    carry = result.and(shifted),
-                    result = result.xor(shifted);
+                carry = result.and(shifted),
+                result = result.xor(shifted);
             return result;
         };
 
@@ -597,7 +596,7 @@
         IntN.NEG_ONE = IntN.ONE.negate();
 
         /**
-         * Subtracts the specified from this IntN (-) and returns the result.
+         * Subtracts the specified from this IntN and returns the result.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
          * @expose
@@ -642,13 +641,13 @@
 
         /**
          * Divides the specified dividend by the specified divisor. This method is used internally by {@link IntN#divide}
-         *  and {@link IntN#modulo} and is exposed statically in case you require the result as well as the remainder.
+         *  and {@link IntN#modulo} and is exposed statically in case both the result and the remainder are required.
          * @param {!IntN} dividend
          * @param {!IntN} divisor
          * @returns {!{result: !IntN, remainder: !IntN}}
          * @expose
          */
-        IntN._divide = function(dividend, divisor) {
+        IntN.divide = function(dividend, divisor) {
             if (divisor.isZero())
                 throw Error("division by zero");
             if (dividend.isZero())
@@ -662,10 +661,9 @@
                 product = divisor.absolute(),
                 term = IntN.UONE,
                 maxTerm = IntN.MIN_VALUE.toUnsigned();
-            while (term.lessThan(maxTerm) && product.lessThan(remainder)) {
-                product = product.shiftLeft(1);
+            while (term.lessThan(maxTerm) && product.lessThan(remainder))
+                product = product.shiftLeft(1),
                 term = term.shiftLeft(1);
-            }
             while (term.greaterThanEqual(IntN.UONE)) {
                 if (product.lessThanEqual(remainder))
                     quotient = quotient.add(term),
@@ -680,7 +678,7 @@
         };
 
         /**
-         * Divides this IntN by the specified (/) and returns the result.
+         * Divides this IntN by the specified and returns the result.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
          * @expose
@@ -688,11 +686,11 @@
         IntN.prototype.divide = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            return IntN._divide(this, other)['result'];
+            return IntN.divide(this, other)['result'];
         };
 
         /**
-         * Divides this IntN by the specified (%) and returns the remainder.
+         * Returns the remainder of the division of this IntN by the specified.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
          * @expose
@@ -700,7 +698,7 @@
         IntN.prototype.modulo = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            return IntN._divide(this, other)['remainder'];
+            return IntN.divide(this, other)['remainder'];
         };
 
         /**
@@ -712,23 +710,25 @@
          */
         function zerofill(s, n) {
             while (s.length < n)
-                s = '0'+s;
+                s = "0"+s;
             return s;
         }
 
         /**
-         * Converts this IntN to its full binary representation. This returns N binary digits for testing and debugging
-         *  and is not equivalent to binary {@link IntN#toString}.
+         * Converts this IntN to its full binary representation. This returns N (number of bits) binary digits for
+         *  testing and debugging, followed by the character `U` if unsigned.
          * @param {boolean=} spaces Whether to insert spaces between bytes, defaults to `false`
          * @returns {string}
          * @expose
          */
-        IntN.prototype.toBinary = function(spaces) {
-            var out = "";
-            for (var i=maxIndex; i>=0; --i) {
+        IntN.prototype.toDebug = function(spaces) {
+            for (var i=maxIndex, out=""; i>=0; --i) {
                 out += zerofill(this.bytes[i].toString(2), 8);
-                if (spaces && i > 0) out += " ";
+                if (spaces && i > 0)
+                    out += " ";
             }
+            if (this.unsigned)
+                out += spaces ? " U" : "U";
             return out;
         };
 
@@ -743,7 +743,7 @@
         var DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
 
         /**
-         * Converts a string using the specified radix to an Int.
+         * Converts a string using the specified radix to an IntN.
          * @param {string} value String
          * @param {(boolean|number)=} unsigned Whether unsigned or not, defaults to `false` for signed (omittable)
          * @param {number=} radix Radix, defaults to `10`
@@ -765,11 +765,10 @@
                 return unsigned ? IntN.UZERO : IntN.ZERO;
             // now always gt 0:
             var result = unsigned ? IntN.UZERO : IntN.ZERO;
-            for (var i=0, k=value.length; i<k; ++i) {
-                var val = DIGITS.indexOf(value.charAt(k-i-1)),
-                    power = IntN.fromInt(Math.pow(radix, i));
-                result = result.add(IntN.fromInt(val).multiply(power));
-            }
+            for (var i=0, k=value.length, val, pwr; i<k; ++i)
+                val = DIGITS.indexOf(value.charAt(k-i-1)),
+                pwr = IntN.fromInt(Math.pow(radix, i)),
+                result = result.add(IntN.fromInt(val).multiply(pwr));
             return result;
         };
 
@@ -802,20 +801,21 @@
                 return '0';
             if (this.isNegative()) {
                 if (this.equals(IntN.MIN_VALUE)) { // -MIN_VALUE = MIN_VALUE
-                    var div = this.divide(radix);
-                    var rem = div.multiply(radix).subtract(this);
+                    var div = IntN.divide(this, radix)['result'],
+                        rem = div.multiply(radix).subtract(this);
                     return div.toString(radix) + rem.toInt().toString(radix.toInt());
                 }
                 return '-'+this.negate().toString(radix);
             }
             // now always gt 0:
             var result = this,
-                digits = [];
-            do {
-                var mod = result.modulo(radix);
-                digits.unshift(DIGITS.charAt(mod.toInt()));
-                result = result.divide(radix);
-            } while (!result.equals(zero));
+                digits = [],
+                mod;
+            do
+                mod = result.modulo(radix),
+                digits.unshift(DIGITS.charAt(mod.toInt())),
+                result = IntN.divide(result, radix)['result'];
+            while (!result.equals(zero));
             return digits.join('');
         };
 

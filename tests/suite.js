@@ -1,4 +1,4 @@
-var IntN = require("../index.js"),
+var IntN = require("../dist/IntN.min.js"),
     Int32 = IntN(32),
     
     imin = (0x80000000)|0,
@@ -123,7 +123,7 @@ function runCases(method, test, cases) {
             }
         } catch (e) {
             e.message += " (case "+(i+1)+"."+n+": "+c[0]+" "+method+" "+c[1]+" ^= "+res+")";
-            // console.log(a.toBinary(true)+" "+method+" "+ b.toBinary(true));
+            // console.log(a.toDebug(true)+" "+method+" "+ b.toDebug(true));
             throw e;
         }
     });
@@ -187,12 +187,12 @@ var suite = {
 
     "debugging": {
 
-        "toBinary": function(test) { // Meant for debugging and testing
-            test.strictEqual(Int32.ZERO.toBinary()      , "00000000000000000000000000000000"   );
-            test.strictEqual(Int32.ZERO.toBinary(true)  , "00000000 00000000 00000000 00000000");
-            test.strictEqual(Int32.UZERO.toBinary(true) , "00000000 00000000 00000000 00000000");
-            test.strictEqual(Int32.ONE.toBinary(true)   , "00000000 00000000 00000000 00000001");
-            test.strictEqual(Int32.UONE.toBinary(true)  , "00000000 00000000 00000000 00000001");
+        "toDebug": function(test) { // Meant for debugging and testing
+            test.strictEqual(Int32.ZERO.toDebug()      , "00000000000000000000000000000000"   );
+            test.strictEqual(Int32.ZERO.toDebug(true)  , "00000000 00000000 00000000 00000000");
+            test.strictEqual(Int32.UZERO.toDebug(true) , "00000000 00000000 00000000 00000000 U");
+            test.strictEqual(Int32.ONE.toDebug(true)   , "00000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.UONE.toDebug(true)  , "00000000 00000000 00000000 00000001 U");
             test.done();
         }
 
@@ -225,14 +225,14 @@ var suite = {
                 uone = Int32.fromInt(1, true);
             test.strictEqual(one.unsigned, false);
             test.strictEqual(uone.unsigned, true);
-            test.strictEqual(one.toBinary(true)                 , "00000000 00000000 00000000 00000001");
-            test.strictEqual(uone.toBinary(true)                , "00000000 00000000 00000000 00000001");
-            test.strictEqual(Int32.fromInt(1).toBinary(true)    , "00000000 00000000 00000000 00000001");
-            test.strictEqual(Int32.fromInt(-1).toBinary(true)   , "11111111 11111111 11111111 11111111");
-            test.strictEqual(Int32.fromInt(100).toBinary(true)  , "00000000 00000000 00000000 01100100");
-            test.strictEqual(Int32.fromInt(imin).toBinary(true) , "10000000 00000000 00000000 00000000");
-            test.strictEqual(Int32.fromInt(imax).toBinary(true) , "01111111 11111111 11111111 11111111");
-            test.strictEqual(Int32.fromInt(iumax, true).toBinary(true), "11111111 11111111 11111111 11111111");
+            test.strictEqual(one.toDebug(true)                 , "00000000 00000000 00000000 00000001");
+            test.strictEqual(uone.toDebug(true)                , "00000000 00000000 00000000 00000001 U");
+            test.strictEqual(Int32.fromInt(1).toDebug(true)    , "00000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.fromInt(-1).toDebug(true)   , "11111111 11111111 11111111 11111111");
+            test.strictEqual(Int32.fromInt(100).toDebug(true)  , "00000000 00000000 00000000 01100100");
+            test.strictEqual(Int32.fromInt(imin).toDebug(true) , "10000000 00000000 00000000 00000000");
+            test.strictEqual(Int32.fromInt(imax).toDebug(true) , "01111111 11111111 11111111 11111111");
+            test.strictEqual(Int32.fromInt(iumax, true).toDebug(true), "11111111 11111111 11111111 11111111 U");
             test.done();
         },
     
@@ -315,8 +315,8 @@ var suite = {
             var val = new Int32([0x00, 0xff, 0x01, 0x80]);
             test.notStrictEqual(val.not(), val);
             test.deepEqual(val.not().bytes, [0xff, 0x00, 0xfe, 0x7f]);
-            test.strictEqual(val.      toBinary(true), "10000000 00000001 11111111 00000000");
-            test.strictEqual(val.not().toBinary(true), "01111111 11111110 00000000 11111111");
+            test.strictEqual(val.      toDebug(true), "10000000 00000001 11111111 00000000");
+            test.strictEqual(val.not().toDebug(true), "01111111 11111110 00000000 11111111");
             test.done();
         },
         
@@ -325,9 +325,9 @@ var suite = {
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.and(val2), val1);
             test.notStrictEqual(val1.and(val2), val2);
-            test.strictEqual(val1.          toBinary(true), "10000000 11110100 11111111 00000000");
-            test.strictEqual(val2.          toBinary(true), "00010010 11111111 10001111 10000000");
-            test.strictEqual(val1.and(val2).toBinary(true), "00000000 11110100 10001111 00000000");
+            test.strictEqual(val1.          toDebug(true), "10000000 11110100 11111111 00000000");
+            test.strictEqual(val2.          toDebug(true), "00010010 11111111 10001111 10000000");
+            test.strictEqual(val1.and(val2).toDebug(true), "00000000 11110100 10001111 00000000");
             test.done();
         },
         
@@ -336,7 +336,7 @@ var suite = {
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.or(val2), val1);
             test.notStrictEqual(val1.or(val2), val2);
-            test.strictEqual(val1.or(val2).toBinary(true), "10010010 11111111 11111111 10000000");
+            test.strictEqual(val1.or(val2).toDebug(true), "10010010 11111111 11111111 10000000");
             test.done();
         },
         
@@ -345,7 +345,7 @@ var suite = {
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.xor(val2), val1);
             test.notStrictEqual(val1.xor(val2), val2);
-            test.strictEqual(val1.xor(val2).toBinary(true), "10010010 00001011 01110000 10000000");
+            test.strictEqual(val1.xor(val2).toDebug(true), "10010010 00001011 01110000 10000000");
             test.done();
         },
         
@@ -353,22 +353,22 @@ var suite = {
             test.strictEqual(Int32.prototype.lsh, Int32.prototype.shiftLeft);
             test.strictEqual(Int32.prototype.leftShift, Int32.prototype.shiftLeft);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
-            test.strictEqual(val1.              toBinary(true), "10000000 11110100 11111111 00000000");
+            test.strictEqual(val1.              toDebug(true), "10000000 11110100 11111111 00000000");
             test.strictEqual(val1.shiftLeft(0), val1);
             test.notStrictEqual(val1.shiftLeft(1), val1);
             test.strictEqual(val1.shiftLeft(32), val1);
-            test.strictEqual(val1.shiftLeft( 1).toBinary(true), "00000001 11101001 11111110 00000000");
-            test.strictEqual(val1.shiftLeft( 3).toBinary(true), "00000111 10100111 11111000 00000000");
-            test.strictEqual(val1.shiftLeft( 7).toBinary(true), "01111010 01111111 10000000 00000000");
-            test.strictEqual(val1.shiftLeft( 8).toBinary(true), "11110100 11111111 00000000 00000000");
-            test.strictEqual(val1.shiftLeft( 9).toBinary(true), "11101001 11111110 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(15).toBinary(true), "01111111 10000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(16).toBinary(true), "11111111 00000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(17).toBinary(true), "11111110 00000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(23).toBinary(true), "10000000 00000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(24).toBinary(true), "00000000 00000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(25).toBinary(true), "00000000 00000000 00000000 00000000");
-            test.strictEqual(val1.shiftLeft(33).toBinary(true), "00000001 11101001 11111110 00000000"); // << 1
+            test.strictEqual(val1.shiftLeft( 1).toDebug(true), "00000001 11101001 11111110 00000000");
+            test.strictEqual(val1.shiftLeft( 3).toDebug(true), "00000111 10100111 11111000 00000000");
+            test.strictEqual(val1.shiftLeft( 7).toDebug(true), "01111010 01111111 10000000 00000000");
+            test.strictEqual(val1.shiftLeft( 8).toDebug(true), "11110100 11111111 00000000 00000000");
+            test.strictEqual(val1.shiftLeft( 9).toDebug(true), "11101001 11111110 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(15).toDebug(true), "01111111 10000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(16).toDebug(true), "11111111 00000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(17).toDebug(true), "11111110 00000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(23).toDebug(true), "10000000 00000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(24).toDebug(true), "00000000 00000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(25).toDebug(true), "00000000 00000000 00000000 00000000");
+            test.strictEqual(val1.shiftLeft(33).toDebug(true), "00000001 11101001 11111110 00000000"); // << 1
             
             var cases = [];
             for (var i=0; i<1000; ++i) {
@@ -383,28 +383,28 @@ var suite = {
             test.strictEqual(Int32.prototype.rsh, Int32.prototype.shiftRight);
             test.strictEqual(Int32.prototype.rightShift, Int32.prototype.shiftRight);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
-            test.strictEqual(val1.toBinary(true), "10000000 11110100 11111111 00000000");
+            test.strictEqual(val1.toDebug(true), "10000000 11110100 11111111 00000000");
             test.strictEqual(val1.shiftRight(0) , val1);
             test.notStrictEqual(val1.shiftRight(1), val1);
             test.strictEqual(val1.shiftRight(32), val1);
-            test.strictEqual(val1.shiftRight( 1).toBinary(true)      , "11000000 01111010 01111111 10000000");
-            test.strictEqual(val1.shiftRight( 1, true).toBinary(true), "01000000 01111010 01111111 10000000");
-            test.strictEqual(val1.shiftRight( 3).toBinary(true)      , "11110000 00011110 10011111 11100000");
-            test.strictEqual(val1.shiftRight( 3, true).toBinary(true), "00010000 00011110 10011111 11100000");
-            test.strictEqual(val1.shiftRight( 7).toBinary(true)      , "11111111 00000001 11101001 11111110");
-            test.strictEqual(val1.shiftRight( 7, true).toBinary(true), "00000001 00000001 11101001 11111110");
-            test.strictEqual(val1.shiftRight( 8).toBinary(true)      , "11111111 10000000 11110100 11111111");
-            test.strictEqual(val1.shiftRight( 8, true).toBinary(true), "00000000 10000000 11110100 11111111");
-            test.strictEqual(val1.shiftRight( 9).toBinary(true)      , "11111111 11000000 01111010 01111111");
-            test.strictEqual(val1.shiftRight( 9, true).toBinary(true), "00000000 01000000 01111010 01111111");
-            test.strictEqual(val1.shiftRight(15).toBinary(true)      , "11111111 11111111 00000001 11101001");
-            test.strictEqual(val1.shiftRight(15, true).toBinary(true), "00000000 00000001 00000001 11101001");
-            test.strictEqual(val1.shiftRight(16).toBinary(true)      , "11111111 11111111 10000000 11110100");
-            test.strictEqual(val1.shiftRight(16, true).toBinary(true), "00000000 00000000 10000000 11110100");
-            test.strictEqual(val1.shiftRight(17).toBinary(true)      , "11111111 11111111 11000000 01111010");
-            test.strictEqual(val1.shiftRight(17, true).toBinary(true), "00000000 00000000 01000000 01111010");
-            test.strictEqual(val1.shiftRight(33).toBinary(true)      , "11000000 01111010 01111111 10000000"); // << 1
-            test.strictEqual(val1.shiftRight(33, true).toBinary(true), "01000000 01111010 01111111 10000000");
+            test.strictEqual(val1.shiftRight( 1).toDebug(true)      , "11000000 01111010 01111111 10000000");
+            test.strictEqual(val1.shiftRight( 1, true).toDebug(true), "01000000 01111010 01111111 10000000");
+            test.strictEqual(val1.shiftRight( 3).toDebug(true)      , "11110000 00011110 10011111 11100000");
+            test.strictEqual(val1.shiftRight( 3, true).toDebug(true), "00010000 00011110 10011111 11100000");
+            test.strictEqual(val1.shiftRight( 7).toDebug(true)      , "11111111 00000001 11101001 11111110");
+            test.strictEqual(val1.shiftRight( 7, true).toDebug(true), "00000001 00000001 11101001 11111110");
+            test.strictEqual(val1.shiftRight( 8).toDebug(true)      , "11111111 10000000 11110100 11111111");
+            test.strictEqual(val1.shiftRight( 8, true).toDebug(true), "00000000 10000000 11110100 11111111");
+            test.strictEqual(val1.shiftRight( 9).toDebug(true)      , "11111111 11000000 01111010 01111111");
+            test.strictEqual(val1.shiftRight( 9, true).toDebug(true), "00000000 01000000 01111010 01111111");
+            test.strictEqual(val1.shiftRight(15).toDebug(true)      , "11111111 11111111 00000001 11101001");
+            test.strictEqual(val1.shiftRight(15, true).toDebug(true), "00000000 00000001 00000001 11101001");
+            test.strictEqual(val1.shiftRight(16).toDebug(true)      , "11111111 11111111 10000000 11110100");
+            test.strictEqual(val1.shiftRight(16, true).toDebug(true), "00000000 00000000 10000000 11110100");
+            test.strictEqual(val1.shiftRight(17).toDebug(true)      , "11111111 11111111 11000000 01111010");
+            test.strictEqual(val1.shiftRight(17, true).toDebug(true), "00000000 00000000 01000000 01111010");
+            test.strictEqual(val1.shiftRight(33).toDebug(true)      , "11000000 01111010 01111111 10000000"); // << 1
+            test.strictEqual(val1.shiftRight(33, true).toDebug(true), "01000000 01111010 01111111 10000000");
     
             var cases = [];
             for (var i=0; i<1000; ++i) {
@@ -421,25 +421,25 @@ var suite = {
     
         "add": function(test) {
             var val = new Int32([0x02, 0, 0, 0]);
-            test.strictEqual(val.add(2).toBinary(true), "00000000 00000000 00000000 00000100");
+            test.strictEqual(val.add(2).toDebug(true), "00000000 00000000 00000000 00000100");
             runCases("add", test);
             test.done();
         },
     
         "negate": function(test) {
-            test.strictEqual(Int32.ONE.negate().toBinary(true)    , "11111111 11111111 11111111 11111111");
-            test.strictEqual(Int32.NEG_ONE.negate().toBinary(true), "00000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.ONE.negate().toDebug(true)    , "11111111 11111111 11111111 11111111");
+            test.strictEqual(Int32.NEG_ONE.negate().toDebug(true), "00000000 00000000 00000000 00000001");
             // -MIN_VALUE = MIN_VALUE, e.g. for IntN(8): MIN_VALUE = -128, not() = MAX_VALUE = 127, add(1) = MIN_VALUE
             test.deepEqual(Int32.MIN_VALUE.not(), Int32.MAX_VALUE);
             test.deepEqual(Int32.MIN_VALUE.not().add(1), Int32.MIN_VALUE);
             test.deepEqual(Int32.MIN_VALUE.negate(), Int32.MIN_VALUE);
-            test.strictEqual(Int32.MAX_VALUE.negate().toBinary(true), "10000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.MAX_VALUE.negate().toDebug(true), "10000000 00000000 00000000 00000001");
             test.done();
         },
         
         "subtract": function(test) {
             var val = new Int32([0x02, 0, 0, 0]);
-            test.strictEqual(val.subtract(2).toBinary(true), "00000000 00000000 00000000 00000000");
+            test.strictEqual(val.subtract(2).toDebug(true), "00000000 00000000 00000000 00000000");
             runCases('subtract', test);
             test.done();
         },
