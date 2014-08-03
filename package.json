@@ -23,6 +23,7 @@
         "test": "node node_modules/testjs/bin/testjs tests/suite.js",
         "build": "cp src/IntN.js dist/IntN.js",
         "compile": "ccjs dist/IntN.js --compilation_level=ADVANCED_OPTIMIZATIONS --create_source_map=dist/IntN.min.map --source_map_format=V3 --externs=externs/minimal-env.js > dist/IntN.min.js",
-        "make": "npm run-script build && npm run-script compile && npm test"
+        "compress": "gzip -c -9 dist/IntN.min.js > dist/IntN.min.js.gz",
+        "make": "npm run-script build && npm run-script compile && npm run-script compress && npm test"
     }
 }

@@ -544,4 +544,10 @@ var a = Int32.fromNumber(1),
 var c = a['+'](b);
 ```
 
+Downloads
+---------
+* [ZIP-Archive](https://github.com/dcodeIO/IntN.js/archive/master.zip)
+* [Tarball](https://github.com/dcodeIO/IntN.js/tarball/master)
+* [Distributions](https://github.com/dcodeIO/IntN.js/tree/master/dist)
+
 **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
