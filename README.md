@@ -1,7 +1,7 @@
 IntN.js
 =======
-**IntN.js** is capable of representing arbitrary size integers in JavaScript, both signed and unsigned, and implements
-the bitwise and arithmetic operations required to conveniently work with their values.
+**IntN.js** is capable of representing arbitrary byte size integers in JavaScript, both signed and unsigned, and
+implements the bitwise and arithmetic operations required to conveniently work with their values.
 
 Please note that this library is in its early stages and hasn't been tested much. It is meant to replace
 [Long.js](https://github.com/dcodeIO/Long.js) eventually and `var Int64 = IntN(64)` should actually be API-compatible
@@ -18,12 +18,14 @@ var IntN  = require("intn");
 
 var Int8  = IntN(8),
     Int16 = IntN(16),
+    Int24 = IntN(24),
     Int32 = IntN(32),
-    Int64 = IntN(64)
-...
+    ...
+    Int64 = IntN(64),
+    ...
 ```
 
-The API documentation in this case references the usage of the classes `Int8` ... `Int32`.
+The API documentation in this case references the usage of the classes created by the function `IntN`.
 
 
 API
@@ -522,4 +524,4 @@ Performs a bitwise xor (^) operation and returns the result.
 'modulo': ['mod']
 ```
 
-**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) - Logo derived from [W3C HTML5 Logos](http://www.w3.org/html/logo/) (CC A 3.0)
+**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
