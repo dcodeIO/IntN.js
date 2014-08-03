@@ -498,31 +498,37 @@ Performs a bitwise xor (^) operation and returns the result.
 
 ### Aliases
 
-```
-// General utility
-'isIntN': ['isInt'+nBits]
+Most of the methods have a couple of aliases to maintain compatibility with other libraries, to make it convenient to
+use or to just to keep your code small:
 
-// Arithmetic evaluation
-'compare': ['comp'],
-'equals': ['eq', 'equal'],
-'notEquals': ['ne', 'notEqual'],
-'lessThan': ['lt', 'less'],
-'lessThanEqual': ['lte', 'lessThanOrEqual'],
-'greaterThan': ['gt', 'greater'],
-'greaterThanEqual': ['gte', 'greaterThanOrEqual'],
+##### General utility:
 
-// Bitwise operations
-'shiftLeft': ['lsh', 'leftShift'],
-'shiftRight': ['rsh', 'rightShift'],
+* **isIntN**: isInt[NBITS]
 
-// Arithmetic operations
-'add': ['plus'],
-'negate': ['neg'],
-'subtract': ['sub', 'minus'],
-'absolute': ['abs'],
-'multiply': ['mult'],
-'divide': ['div'],
-'modulo': ['mod']
-```
+##### Arithmetic evaluation:
+
+* **compare**: comp
+* **equals**: eq, equal
+* **notEquals**: ne, notEqual
+* **lessThan**: lt, less
+* **lessThanEqual**: lte, lessThanOrEqual
+* **greaterThan**: gt, greater
+* **greaterThanEqual**: gte, greaterThanOrEqual
+
+##### Bitwise operations:
+
+* **shiftLeft**: lsh, leftShift
+* **shiftRight**: rsh, rightShift
+* **shiftRightUnsigned**: rshu, rightShiftUnsigned
+
+##### Arithmetic operations:
+
+* **add**: plus
+* **negate**: neg
+* **subtract**: sub, minus
+* **absolute**: abs
+* **multiply**: mult
+* **divide**: div
+* **modulo**: mod
 
 **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)

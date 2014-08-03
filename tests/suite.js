@@ -73,9 +73,17 @@ function runCases(method, test, cases) {
                     res = (c[0] + c[1])|0;
                     rev = (c[1] + c[0])|0;
                     break;
+                case 'negate':
+                    res = -c[0];
+                    rev = -c[1];
+                    break;
                 case 'subtract':
                     res = (c[0] - c[1])|0;
                     rev = (c[1] - c[0])|0;
+                    break;
+                case 'compare':
+                    res = c[0] === c[1] ? 0 : (c[0] < c[1] ? -1 : 1);
+                    rev = c[1] === c[0] ? 0 : (c[1] < c[0] ? -1 : 1);
                     break;
                 case 'multiply':
                     res = (c[0] * c[1])|0;
@@ -88,6 +96,22 @@ function runCases(method, test, cases) {
                 case 'modulo':
                     res = c[0] % c[1];
                     rev = c[1] % c[0];
+                    break;
+                case 'not':
+                    res = ~c[0];
+                    rev = ~c[1];
+                    break;
+                case 'and':
+                    res = c[0] & c[1];
+                    rev = c[1] & c[0];
+                    break;
+                case 'or':
+                    res = c[0] | c[1];
+                    rev = c[1] | c[0];
+                    break;
+                case 'xor':
+                    res = c[0] ^ c[1];
+                    rev = c[1] ^ c[0];
                     break;
                 case 'shiftLeft':
                     res = c[0] << c[1];
@@ -108,7 +132,7 @@ function runCases(method, test, cases) {
                 b = Int32.fromInt(c[1], c[1] > 0x7fffffff);
             if (res !== null) {
                 var f1 = a[method](b);
-                if (typeof f1 === 'boolean')
+                if (typeof f1 === 'boolean' || typeof f1 === 'number')
                     test.strictEqual(f1, res);
                 else
                     test.deepEqual(f1.bytes, Int32.fromInt(res).bytes);
@@ -116,7 +140,7 @@ function runCases(method, test, cases) {
             }
             if (rev !== null) {
                 var f2 = b[method](a);
-                if (typeof f2 === 'boolean')
+                if (typeof f2 === 'boolean' || typeof f2 === 'number')
                     test.strictEqual(f2, rev);
                 else
                     test.deepEqual(f2.bytes, Int32.fromInt(rev, rev > 0x7fffffff).bytes);
@@ -188,11 +212,14 @@ var suite = {
     "debugging": {
 
         "toDebug": function(test) { // Meant for debugging and testing
-            test.strictEqual(Int32.ZERO.toDebug()      , "00000000000000000000000000000000"   );
-            test.strictEqual(Int32.ZERO.toDebug(true)  , "00000000 00000000 00000000 00000000");
-            test.strictEqual(Int32.UZERO.toDebug(true) , "00000000 00000000 00000000 00000000 U");
-            test.strictEqual(Int32.ONE.toDebug(true)   , "00000000 00000000 00000000 00000001");
-            test.strictEqual(Int32.UONE.toDebug(true)  , "00000000 00000000 00000000 00000001 U");
+            test.strictEqual(Int32.ZERO.toDebug()                   , "00000000000000000000000000000000"   );
+            test.strictEqual(Int32.ZERO.toDebug(true)               , "00000000 00000000 00000000 00000000");
+            test.strictEqual(Int32.UZERO.toDebug(true)              , "00000000 00000000 00000000 00000000 U");
+            test.strictEqual(Int32.ONE.toDebug(true)                , "00000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.UONE.toDebug(true)               , "00000000 00000000 00000000 00000001 U");
+            test.strictEqual(Int32.MIN_VALUE.toDebug(true)          , "10000000 00000000 00000000 00000000");
+            test.strictEqual(Int32.MAX_VALUE.toDebug(true)          , "01111111 11111111 11111111 11111111");
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.toDebug(true) , "11111111 11111111 11111111 11111111 U");
             test.done();
         }
 
@@ -317,6 +344,7 @@ var suite = {
             test.deepEqual(val.not().bytes, [0xff, 0x00, 0xfe, 0x7f]);
             test.strictEqual(val.      toDebug(true), "10000000 00000001 11111111 00000000");
             test.strictEqual(val.not().toDebug(true), "01111111 11111110 00000000 11111111");
+            runCases("not", test);
             test.done();
         },
         
@@ -328,6 +356,7 @@ var suite = {
             test.strictEqual(val1.          toDebug(true), "10000000 11110100 11111111 00000000");
             test.strictEqual(val2.          toDebug(true), "00010010 11111111 10001111 10000000");
             test.strictEqual(val1.and(val2).toDebug(true), "00000000 11110100 10001111 00000000");
+            runCases("and", test);
             test.done();
         },
         
@@ -337,6 +366,7 @@ var suite = {
             test.notStrictEqual(val1.or(val2), val1);
             test.notStrictEqual(val1.or(val2), val2);
             test.strictEqual(val1.or(val2).toDebug(true), "10010010 11111111 11111111 10000000");
+            runCases("or", test);
             test.done();
         },
         
@@ -346,6 +376,7 @@ var suite = {
             test.notStrictEqual(val1.xor(val2), val1);
             test.notStrictEqual(val1.xor(val2), val2);
             test.strictEqual(val1.xor(val2).toDebug(true), "10010010 00001011 01110000 10000000");
+            runCases("xor", test);
             test.done();
         },
         
@@ -411,6 +442,9 @@ var suite = {
                 cases.push([(Math.random()*0xffffffff)|0, (Math.random()*32)|0]);
             }
             runCases("shiftRight", test, cases);
+            
+            test.strictEqual(Int32.prototype.rshu, Int32.prototype.shiftRightUnsigned);
+            test.strictEqual(Int32.prototype.rightShiftUnsigned, Int32.prototype.shiftRightUnsigned);
             runCases("shiftRightUnsigned", test, cases);
     
             test.done();
@@ -434,6 +468,9 @@ var suite = {
             test.deepEqual(Int32.MIN_VALUE.not().add(1), Int32.MIN_VALUE);
             test.deepEqual(Int32.MIN_VALUE.negate(), Int32.MIN_VALUE);
             test.strictEqual(Int32.MAX_VALUE.negate().toDebug(true), "10000000 00000000 00000000 00000001");
+            
+            runCases("negate", test);
+            
             test.done();
         },
         
@@ -448,6 +485,7 @@ var suite = {
             test.strictEqual(Int32.prototype.comp, Int32.prototype.compare);
             test.strictEqual(Int32.ONE.compare(Int32.ZERO), 1);
             test.strictEqual(Int32.NEG_ONE.compare(Int32.ZERO), -1);
+            runCases('compare', test);
             test.done();
         },
     

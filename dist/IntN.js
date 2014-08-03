@@ -83,10 +83,12 @@
              * @type {!Array.<number>}
              * @expose
              */
-            this.bytes = zeroes.slice(0, nBytes);
+            this.bytes = new Array(nBytes);
 
             for (var i=0, k=bytes.length; i<k; ++i)
-                this.bytes[i] |= bytes[i] & 0xff;
+                this.bytes[i] = bytes[i] & 0xff;
+            for (; i<nBytes; ++i)
+                this.bytes[i] = 0;
 
             /**
              * Whether unsigned or, otherwise, signed.
@@ -121,8 +123,8 @@
                 return IntN.fromString(obj);
             else if (obj && obj instanceof IntN && obj.bytes.length == nBytes)
                 return obj;
-            // Throws for undefined, null, bytes not an array (in constructor)
-            // Fills smaller, truncates larger N (does not respect sign)
+            // Throws for not an object (undefined, null) bytes not an array (in constructor)
+            // Fills smaller, truncates larger N (does not respect sign if differing)
             return new IntN(obj.bytes, obj.unsigned);
         };
 
@@ -746,8 +748,10 @@
          * Converts a string using the specified radix to an IntN.
          * @param {string} value String
          * @param {(boolean|number)=} unsigned Whether unsigned or not, defaults to `false` for signed (omittable)
-         * @param {number=} radix Radix, defaults to `10`
+         * @param {number=} radix Radix (2-36), defaults to 10
          * @returns {!IntN}
+         * @throws {RangeError} If `radix` is out of range
+         * @throws {Error} If `value` contains illegal characters
          * @expose
          */
         IntN.fromString = function(value, unsigned, radix) {
@@ -756,38 +760,49 @@
                 unsigned = false;
             value = (value+"").toLowerCase();
             radix = radix || 10;
+            if (radix < 2 || radix > 36)
+                throw RangeError("radix out of range: "+radix+" (2-36)");
             if (value.charAt(0) === '-')
-                return IntN.fromString(value.substring(1), radix).negate();
+                return IntN.fromString(value.substring(1), unsigned, radix).negate();
             if (value.charAt(0) === '+')
                 value = value.substring(1);
             // now always gte 0:
             if (value === '0' || value === 'NaN' || value === 'Infinity')
                 return unsigned ? IntN.UZERO : IntN.ZERO;
             // now always gt 0:
-            var result = unsigned ? IntN.UZERO : IntN.ZERO;
-            for (var i=0, k=value.length, val, pwr; i<k; ++i)
-                val = DIGITS.indexOf(value.charAt(k-i-1)),
-                pwr = IntN.fromInt(Math.pow(radix, i)),
-                result = result.add(IntN.fromInt(val).multiply(pwr));
+            var result = unsigned ? IntN.UZERO : IntN.ZERO,
+                radixToPower = (radix === 2)
+                    ? function(i) { return 1 << i; }
+                    : Math.pow.bind(Math, radix);
+            for (var i=0, k=value.length, ch, val; i<k; ++i) {
+                ch = value.charAt(k-i-1);               
+                val = DIGITS.indexOf(ch);
+                if (val < 0 || val > radix)
+                    throw Error("illegal interior character: "+ch);
+                result = result.add(IntN.fromInt(val).multiply(IntN.fromInt(radixToPower(i))));
+            }
             return result;
         };
 
         /**
          * @type {!IntN}
+         * @const
          * @inner
          */
         var IntN_2 = IntN.fromInt(2);
 
         /**
          * @type {!IntN}
+         * @const
          * @inner
          */
         var IntN_36 = IntN.fromInt(36);
 
         /**
          * Converts this IntN to a string of the specified radix.
-         * @param {!IntN|number|string} radix Radix, defaults to `10`
+         * @param {!IntN|number|string} radix Radix (2-36), defaults to 10
          * @returns {string}
+         * @throws {RangeError} If `radix` is out of range
          * @expose
          */
         IntN.prototype.toString = function(radix) {
@@ -795,7 +810,7 @@
             if (!IntN.isIntN(radix))
                 radix = IntN.valueOf(radix);
             if (radix.lessThan(IntN_2) || radix.greaterThan(IntN_36))
-                throw RangeError("radix out of range: "+radix.toInt());
+                throw RangeError("radix out of range: "+radix.toInt()+" (2-36)");
             var zero = this.unsigned ? IntN.UZERO : IntN.ZERO;
             if (this.equals(zero))
                 return '0';
@@ -841,6 +856,7 @@
                 // Bitwise operations
                 'shiftLeft': ['lsh', 'leftShift'],
                 'shiftRight': ['rsh', 'rightShift'],
+                'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned'],
                 // Arithmetic operations
                 'add': ['plus'],
                 'negate': ['neg'],
