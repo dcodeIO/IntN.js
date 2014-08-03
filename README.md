@@ -498,37 +498,50 @@ Performs a bitwise xor (^) operation and returns the result.
 
 ### Aliases
 
-Most of the methods have a couple of aliases to maintain compatibility with other libraries, to make it convenient to
-use or to just to keep your code small:
+Most of the methods have a couple of aliases to maintain compatibility with other libraries, to make it more convenient
+to use or simply to to keep your code small:
 
 ##### General utility:
 
-* **isIntN**: isInt[NBITS]
+* **isIntN**: isInt[NBITS] with [NBITS] being the number of bits provided to IntN (e.g. 32)
 
 ##### Arithmetic evaluation:
 
 * **compare**: comp
-* **equals**: eq, equal
-* **notEquals**: ne, notEqual
-* **lessThan**: lt, less
-* **lessThanEqual**: lte, lessThanOrEqual
-* **greaterThan**: gt, greater
-* **greaterThanEqual**: gte, greaterThanOrEqual
+* **equals**: eq, equal, ==
+* **notEquals**: ne, notEqual, !=
+* **lessThan**: lt, less, &lt;
+* **lessThanEqual**: lte, lessThanOrEqual, &lt=
+* **greaterThan**: gt, greater, &gt;
+* **greaterThanEqual**: gte, greaterThanOrEqual, &gt;=
 
 ##### Bitwise operations:
 
-* **shiftLeft**: lsh, leftShift
-* **shiftRight**: rsh, rightShift
-* **shiftRightUnsigned**: rshu, rightShiftUnsigned
+* **not**: ~
+* **and**: &
+* **or**: |
+* **xor**: ^
+* **shiftLeft**: lsh, leftShift, &lt;%lt;
+* **shiftRight**: rsh, rightShift, &gt;&gt;
+* **shiftRightUnsigned**: rshu, rightShiftUnsigned, &gt;&gt;&gt;
 
 ##### Arithmetic operations:
 
-* **add**: plus
-* **negate**: neg
-* **subtract**: sub, minus
-* **absolute**: abs
-* **multiply**: mult
-* **divide**: div
-* **modulo**: mod
+* **add**: plus, +
+* **negate**: neg, !
+* **subtract**: sub, minus, -
+* **absolute**: abs, ||
+* **multiply**: mult, *
+* **divide**: div, /
+* **modulo**: mod, %
+
+If you like it rather formal:
+
+```js
+var a = Int32.fromNumber(1),
+    b = Int32.fromNumber(2);
+    
+var c = a['+'](b);
+```
 
 **License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)

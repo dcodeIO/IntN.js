@@ -847,24 +847,28 @@
             prototype: {
                 // Arithmetic evaluation
                 'compare': ['comp'],
-                'equals': ['eq', 'equal'],
-                'notEquals': ['ne', 'notEqual'],
-                'lessThan': ['lt', 'less'],
-                'lessThanEqual': ['lte', 'lessThanOrEqual'],
-                'greaterThan': ['gt', 'greater'],
-                'greaterThanEqual': ['gte', 'greaterThanOrEqual'],
+                'equals': ['eq', 'equal', '=='],
+                'notEquals': ['ne', 'notEqual', '!='],
+                'lessThan': ['lt', 'less', 'lesser', '<'],
+                'lessThanEqual': ['lte', 'lessThanOrEqual', '<='],
+                'greaterThan': ['gt', 'greater', '>'],
+                'greaterThanEqual': ['gte', 'greaterThanOrEqual', '>='],
                 // Bitwise operations
-                'shiftLeft': ['lsh', 'leftShift'],
-                'shiftRight': ['rsh', 'rightShift'],
-                'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned'],
+                'not': ['~'],
+                'and': ['&'],
+                'or': ['|'],
+                'xor': ['^'],
+                'shiftLeft': ['lsh', 'leftShift', '<<'],
+                'shiftRight': ['rsh', 'rightShift', '>>'],
+                'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
                 // Arithmetic operations
-                'add': ['plus'],
-                'negate': ['neg'],
-                'subtract': ['sub', 'minus'],
-                'absolute': ['abs'],
-                'multiply': ['mult'],
-                'divide': ['div'],
-                'modulo': ['mod']
+                'add': ['plus', '+'],
+                'negate': ['neg', '!'],
+                'subtract': ['sub', 'minus', '-'],
+                'absolute': ['abs', '||'],
+                'multiply': ['mult', '*'],
+                'divide': ['div', '/'],
+                'modulo': ['mod', '%']
             }
         };
 

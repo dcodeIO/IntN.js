@@ -81,6 +81,10 @@ function runCases(method, test, cases) {
                     res = (c[0] - c[1])|0;
                     rev = (c[1] - c[0])|0;
                     break;
+                case 'absolute':
+                    res = Math.abs(c[0]);
+                    rev = Math.abs(c[1]);
+                    break;
                 case 'compare':
                     res = c[0] === c[1] ? 0 : (c[0] < c[1] ? -1 : 1);
                     rev = c[1] === c[0] ? 0 : (c[1] < c[0] ? -1 : 1);
@@ -339,6 +343,7 @@ var suite = {
     "bitwise": {
     
         "not": function(test) {
+            test.strictEqual(Int32.prototype['~'], Int32.prototype.not);
             var val = new Int32([0x00, 0xff, 0x01, 0x80]);
             test.notStrictEqual(val.not(), val);
             test.deepEqual(val.not().bytes, [0xff, 0x00, 0xfe, 0x7f]);
@@ -349,6 +354,7 @@ var suite = {
         },
         
         "and": function(test) {
+            test.strictEqual(Int32.prototype['&'], Int32.prototype.and);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.and(val2), val1);
@@ -361,6 +367,7 @@ var suite = {
         },
         
         "or": function(test) {
+            test.strictEqual(Int32.prototype['|'], Int32.prototype.or);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.or(val2), val1);
@@ -371,6 +378,7 @@ var suite = {
         },
         
         "xor": function(test) {
+            test.strictEqual(Int32.prototype['^'], Int32.prototype.xor);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
             var val2 = new Int32([0x80, 0x8f, 0xff, 0x12]);
             test.notStrictEqual(val1.xor(val2), val1);
@@ -383,6 +391,7 @@ var suite = {
         "shiftLeft": function(test) {
             test.strictEqual(Int32.prototype.lsh, Int32.prototype.shiftLeft);
             test.strictEqual(Int32.prototype.leftShift, Int32.prototype.shiftLeft);
+            test.strictEqual(Int32.prototype['<<'], Int32.prototype.shiftLeft);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
             test.strictEqual(val1.              toDebug(true), "10000000 11110100 11111111 00000000");
             test.strictEqual(val1.shiftLeft(0), val1);
@@ -413,6 +422,7 @@ var suite = {
         "shiftRight/Unsigned": function(test) {
             test.strictEqual(Int32.prototype.rsh, Int32.prototype.shiftRight);
             test.strictEqual(Int32.prototype.rightShift, Int32.prototype.shiftRight);
+            test.strictEqual(Int32.prototype['>>'], Int32.prototype.shiftRight);
             var val1 = new Int32([0x00, 0xff, 0xf4, 0x80]);
             test.strictEqual(val1.toDebug(true), "10000000 11110100 11111111 00000000");
             test.strictEqual(val1.shiftRight(0) , val1);
@@ -445,6 +455,7 @@ var suite = {
             
             test.strictEqual(Int32.prototype.rshu, Int32.prototype.shiftRightUnsigned);
             test.strictEqual(Int32.prototype.rightShiftUnsigned, Int32.prototype.shiftRightUnsigned);
+            test.strictEqual(Int32.prototype['>>>'], Int32.prototype.shiftRightUnsigned);
             runCases("shiftRightUnsigned", test, cases);
     
             test.done();
@@ -454,6 +465,8 @@ var suite = {
     "arithmetic": {
     
         "add": function(test) {
+            test.strictEqual(Int32.prototype.plus, Int32.prototype.add);
+            test.strictEqual(Int32.prototype['+'], Int32.prototype.add);
             var val = new Int32([0x02, 0, 0, 0]);
             test.strictEqual(val.add(2).toDebug(true), "00000000 00000000 00000000 00000100");
             runCases("add", test);
@@ -461,6 +474,8 @@ var suite = {
         },
     
         "negate": function(test) {
+            test.strictEqual(Int32.prototype.neg, Int32.prototype.negate);
+            test.strictEqual(Int32.prototype['!'], Int32.prototype.negate);
             test.strictEqual(Int32.ONE.negate().toDebug(true)    , "11111111 11111111 11111111 11111111");
             test.strictEqual(Int32.NEG_ONE.negate().toDebug(true), "00000000 00000000 00000000 00000001");
             // -MIN_VALUE = MIN_VALUE, e.g. for IntN(8): MIN_VALUE = -128, not() = MAX_VALUE = 127, add(1) = MIN_VALUE
@@ -475,9 +490,19 @@ var suite = {
         },
         
         "subtract": function(test) {
+            test.strictEqual(Int32.prototype.sub, Int32.prototype.subtract);
+            test.strictEqual(Int32.prototype.minus, Int32.prototype.subtract);
+            test.strictEqual(Int32.prototype['-'], Int32.prototype.subtract);
             var val = new Int32([0x02, 0, 0, 0]);
             test.strictEqual(val.subtract(2).toDebug(true), "00000000 00000000 00000000 00000000");
-            runCases('subtract', test);
+            runCases("subtract", test);
+            test.done();
+        },
+        
+        "absolute": function(test) {
+            test.strictEqual(Int32.prototype.abs, Int32.prototype.absolute);
+            test.strictEqual(Int32.prototype['||'], Int32.prototype.absolute);
+            runCases("absolute", test);
             test.done();
         },
         
@@ -492,6 +517,7 @@ var suite = {
         "equals": function(test) {
             test.strictEqual(Int32.prototype.eq, Int32.prototype.equals);
             test.strictEqual(Int32.prototype.equal, Int32.prototype.equals);
+            test.strictEqual(Int32.prototype['=='], Int32.prototype.equals);
             runCases("equals", test);
             test.done();
         },
@@ -499,16 +525,24 @@ var suite = {
         "notEquals": function(test) {
             test.strictEqual(Int32.prototype.ne, Int32.prototype.notEquals);
             test.strictEqual(Int32.prototype.notEqual, Int32.prototype.notEquals);
+            test.strictEqual(Int32.prototype['!='], Int32.prototype.notEquals);
             runCases("notEquals", test);
             test.done();
         },
         
         "lessThan": function(test) {
+            test.strictEqual(Int32.prototype.lt, Int32.prototype.lessThan);
+            test.strictEqual(Int32.prototype.less, Int32.prototype.lessThan);
+            test.strictEqual(Int32.prototype.lesser, Int32.prototype.lessThan);
+            test.strictEqual(Int32.prototype['<'], Int32.prototype.lessThan);
             runCases("lessThan", test);
             test.done();
         },
         
         "lessThanEqual": function(test) {
+            test.strictEqual(Int32.prototype.lte, Int32.prototype.lessThanEqual);
+            test.strictEqual(Int32.prototype.lessThanOrEqual, Int32.prototype.lessThanEqual);
+            test.strictEqual(Int32.prototype['<='], Int32.prototype.lessThanEqual);
             runCases("lessThanEqual", test);
             
             // In case this errors:
@@ -527,18 +561,21 @@ var suite = {
         
         "greaterThan": function(test) {
             test.strictEqual(Int32.prototype.gt, Int32.prototype.greaterThan);
+            test.strictEqual(Int32.prototype['>'], Int32.prototype.greaterThan);
             runCases("greaterThan", test);
             test.done();
         },
         
         "greaterThanEqual": function(test) {
             test.strictEqual(Int32.prototype.gte, Int32.prototype.greaterThanEqual);
+            test.strictEqual(Int32.prototype['>='], Int32.prototype.greaterThanEqual);
             runCases("greaterThanEqual", test);
             test.done();
         },
         
         "multiply": function(test) {
             test.strictEqual(Int32.prototype.mult, Int32.prototype.multiply);
+            test.strictEqual(Int32.prototype['*'], Int32.prototype.multiply);
             test.deepEqual(Int32.ZERO.multiply(Int32.ZERO), Int32.ZERO);
             test.deepEqual(Int32.ZERO.multiply(Int32.ONE), Int32.ZERO);
             test.deepEqual(Int32.ONE.multiply(Int32.ZERO), Int32.ZERO);
