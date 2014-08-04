@@ -32,7 +32,7 @@ API
 
 #### new IntN(bytes, unsigned=)
 
-Constructs a new IntN.
+Constructs a new IntN, where N is the number of bits represented by this class.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -154,7 +154,7 @@ Constructs an IntN from a 32bit integer value.
 
 #### IntN.fromNumber(value, unsigned=)
 
-Constructs an IntN from a number value.
+Constructs an IntN from a number (double, 52 bit mantissa) value.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -197,7 +197,7 @@ Converts the specified value to an IntN.
 
 #### IntN#bytes
 
-Byte values, least significant first.
+Represented byte values, least significant first.
 
 |                 |                 |
 |-----------------|-----------------|
@@ -205,7 +205,7 @@ Byte values, least significant first.
 
 #### IntN#unsigned
 
-Whether unsigned or, otherwise, signed.
+Whether unsigned or otherwise signed.
 
 |                 |                 |
 |-----------------|-----------------|
@@ -465,17 +465,18 @@ testing and debugging, followed by the character `U` if unsigned.
 | spaces          | *boolean*       | Whether to insert spaces between bytes, defaults to `false` 
 | **@returns**    | *string*        | 
 
-#### IntN#toInt()
+#### IntN#toInt(unsigned=)
 
 Converts this IntN to a 32bit integer value.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
+| unsigned        | *boolean*       | Whether unsigned or not, defaults to this' [IntN#unsigned](#intnunsigned) 
 | **@returns**    | *number*        | 
 
 #### IntN#toNumber()
 
-Converts this IntN to a number value.
+Converts this IntN to a number (double, 52 bit mantissa) value.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
