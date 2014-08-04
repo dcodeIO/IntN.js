@@ -1,6 +1,6 @@
 {
     "name": "intn",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "author": "Daniel Wirtz <dcode@dcode.io>",
     "description": "A class for representing arbitrary byte size integers, signed and unsigned.",
     "main": "index.js",
@@ -8,7 +8,7 @@
         "type": "git",
         "url": "https://github.com/dcodeIO/IntN.js.git"
     },
-    "keywords": ["math", "integer", "long", "short", "arithmetic"],
+    "keywords": ["math", "byte", "short", "integer", "long", "bitwise", "arithmetic", "signed", "unsigned"],
     "dependencies": {
     },
     "devDependencies": {

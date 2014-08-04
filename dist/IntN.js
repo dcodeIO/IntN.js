@@ -23,13 +23,13 @@
 
     /**
      * Creates a class for representing `nBits` bit integers.
-     * @param {number} nBits Number of bits (must be a positive multiple of `8`)
+     * @param {number} nBits Number of bits (must be a positive multiple of 8)
      * @returns {!Function}
      * @inner
      */
     function makeIntN(nBits) {
         if (nBits <= 0 || (nBits%8) !== 0)
-            throw Error("Illegal number of bits: "+nBits+" (not a positive multiple of 8)");
+            throw Error("illegal number of bits: "+nBits+" (not a positive multiple of 8)");
 
         /**
          * Number of bits represented by this IntN class.
@@ -84,7 +84,7 @@
         })();
 
         /**
-         * Constructs a new IntN.
+         * Constructs a new IntN, where N is the number of bits represented by this class.
          * @class A class for representing arbitrary size integers, both signed and unsigned.
          * @exports IntN
          * @param {!Array.<number>} bytes Byte values, least significant first
@@ -94,7 +94,7 @@
         function IntN(bytes, unsigned) {
 
             /**
-             * Byte values, least significant first.
+             * Represented byte values, least significant first.
              * @type {!Array.<number>}
              * @expose
              */
@@ -106,7 +106,7 @@
                 this.bytes[i] = 0;
 
             /**
-             * Whether unsigned or, otherwise, signed.
+             * Whether unsigned or otherwise signed.
              * @type {boolean}
              * @expose
              */
@@ -122,7 +122,8 @@
          * @expose
          */
         IntN.isIntN = function(obj) {
-            return (obj && Array.isArray(obj.bytes) && obj.bytes.length === nBytes && typeof obj.unsigned === 'boolean') === true;
+            return (obj && Array.isArray(obj.bytes) && obj.bytes.length === nBytes && typeof obj.unsigned === 'boolean')
+                === true;
         };
 
         /**
@@ -152,10 +153,10 @@
          */
         IntN.prototype.cast = function(TargetIntN, unsigned) {
             unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
-            var isNegative = this.isNegative(),
-                val = isNegative ? this.negate() : this;
+            var retainMsb = this.isNegative(),
+                val = retainMsb ? this.not() : this;
             val = new TargetIntN(val.bytes, unsigned);
-            return isNegative ? val.negate() : val;
+            return retainMsb ? val.not() : val;
         };
 
         // Basic constants
@@ -416,25 +417,42 @@
 
         /**
          * Converts this IntN to a 32bit integer value.
+         * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
          * @returns {number}
          * @expose
          */
-        IntN.prototype.toInt = function() {
-            var isNegative = this.isNegative(),
-                val = this;
-            if (isNegative) // retain msb
-                val = val.not();
+        IntN.prototype.toInt = function(unsigned) {
+            unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
+            var retainMsb = this.isNegative(),
+                val = retainMsb ? this.not() : this;
             for (var i=0, result=0; i<Math.min(4, val.bytes.length); ++i)
                 result |= val.bytes[i] << (i*8);
-            if (isNegative)
+            if (retainMsb)
                 result = ~result;
-            return this.unsigned ? result >>> 0 : result;
+            return unsigned ? result >>> 0 : result;
         };
 
         // Number conversion
 
         /**
-         * Constructs an IntN from a number value.
+         * Relevant powers (0-7) of 256.
+         * @type {!Array.<number>}
+         * @const
+         * @inner
+         */
+        var double_256_pwr = [
+            1,
+            256,
+            65536,
+            16777216,
+            4294967296,
+            1099511627776,
+            281474976710656
+            // >= ^7 is inexact
+        ];
+
+        /**
+         * Constructs an IntN from a number (double, 52 bit mantissa) value.
          * @param {number} value Number value
          * @param {boolean=} unsigned Whether unsigned or not, defaults `false` for signed
          * @returns {!IntN}
@@ -455,7 +473,7 @@
         };
 
         /**
-         * Converts this IntN to a number value.
+         * Converts this IntN to a number (double, 52 bit mantissa) value.
          * @returns {number}
          * @expose
          */
@@ -465,8 +483,8 @@
             if (this.isNegative())
                 return this.equals(IntN.MIN_VALUE) ? 0x80000000|0 : -this.negate().toNumber(); // -MIN_VALUE = MIN_VALUE
             // now always gt 0:
-            for (var i=0, result=0, k=Math.min(nBytes, 7); i<k; ++i)
-                result += (this.bytes[i] << (i*8)) >>> 0;
+            for (var i=0, result=0, k=Math.min(nBytes, 7); i<k; ++i) // 7 bytes = 56 bits
+                result += this.bytes[i] * double_256_pwr[i];
             return result;
         };
 
@@ -740,19 +758,6 @@
         };
 
         /**
-         * Fills a string with leading zeroes.
-         * @param {string} s String to fill
-         * @param {number} n Number of characters
-         * @returns {string}
-         * @inner
-         */
-        function zerofill(s, n) {
-            while (s.length < n)
-                s = "0"+s;
-            return s;
-        }
-
-        /**
          * Converts this IntN to its full binary representation. This returns N (number of bits) binary digits for
          *  testing and debugging, followed by the character `U` if unsigned.
          * @param {boolean=} spaces Whether to insert spaces between bytes, defaults to `false`
@@ -760,25 +765,44 @@
          * @expose
          */
         IntN.prototype.toDebug = function(spaces) {
-            for (var i=maxIndex, out=""; i>=0; --i) {
-                out += zerofill(this.bytes[i].toString(2), 8);
+            for (var i=maxIndex, byt, out=""; i>=0; --i) {
+                byt = this.bytes[i].toString(2);
+                while (byt.length < 8)
+                    byt = '0'+byt;
+                out += byt;
                 if (spaces && i > 0)
-                    out += " ";
+                    out += ' ';
             }
             if (this.unsigned)
-                out += spaces ? " U" : "U";
+                out += spaces ? " U" : 'U';
             return out;
         };
 
         // String conversion
 
         /**
-         * Valid digits for string conversion.
+         * Valid characters for string conversion.
          * @type {string}
          * @const
          * @inner
          */
-        var DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz";
+        var chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+        /**
+         * IntN representing 2.
+         * @type {!IntN}
+         * @const
+         * @inner
+         */
+        var IntN_2 = IntN.fromInt(2);
+
+        /**
+         * IntN representing 36.
+         * @type {!IntN}
+         * @const
+         * @inner
+         */
+        var IntN_36 = IntN.fromInt(36);
 
         /**
          * Converts a string using the specified radix to an IntN.
@@ -812,27 +836,13 @@
                     : Math.pow.bind(Math, radix);
             for (var i=0, k=value.length, ch, val; i<k; ++i) {
                 ch = value.charAt(k-i-1);               
-                val = DIGITS.indexOf(ch);
+                val = chars.indexOf(ch);
                 if (val < 0 || val > radix)
                     throw Error("illegal interior character: "+ch);
                 result = result.add(IntN.fromInt(val).multiply(IntN.fromInt(radixToPower(i))));
             }
             return result;
         };
-
-        /**
-         * @type {!IntN}
-         * @const
-         * @inner
-         */
-        var IntN_2 = IntN.fromInt(2);
-
-        /**
-         * @type {!IntN}
-         * @const
-         * @inner
-         */
-        var IntN_36 = IntN.fromInt(36);
 
         /**
          * Converts this IntN to a string of the specified radix.
@@ -864,7 +874,7 @@
                 mod;
             do
                 mod = result.modulo(radix),
-                digits.unshift(DIGITS.charAt(mod.toInt())),
+                digits.unshift(chars.charAt(mod.toInt())),
                 result = IntN.divide(result, radix)['quotient'];
             while (!result.equals(zero));
             return digits.join('');
