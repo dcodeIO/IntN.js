@@ -28,16 +28,31 @@
      * @inner
      */
     function makeIntN(nBits) {
-        
         if (nBits <= 0 || (nBits%8) !== 0)
             throw Error("Illegal number of bits: "+nBits+" (not a positive multiple of 8)");
 
+        /**
+         * Number of bits represented by this IntN class.
+         * @type {number}
+         * @const
+         * @expose
+         */
+        IntN.BITS = nBits|0;
+        
         /**
          * Number of bytes.
          * @type {number}
          * @inner
          */
-        var nBytes = nBits/8;
+        var nBytes = (nBits/8)|0;
+
+        /**
+         * Number of bytes represented by this IntN class.
+         * @type {number}
+         * @const
+         * @expose
+         */
+        IntN.BYTES = nBytes;
 
         /**
          * Maximum byte index.
@@ -111,21 +126,36 @@
         };
 
         /**
-         * Converts the specified object to an IntN.
-         * @param {number|string|!{bytes: !Array.<number>, unsigned: boolean}} obj Object
+         * Converts the specified value to an IntN.
+         * @param {number|string|!{bytes: !Array.<number>, unsigned: boolean}} val Value
          * @returns {!IntN}
          * @expose
          */
-        IntN.valueOf = function(obj) {
-            if (typeof obj === 'number')
-                return IntN.fromNumber(obj);
-            else if (typeof obj === 'string')
-                return IntN.fromString(obj);
-            else if (obj && obj instanceof IntN && obj.bytes.length == nBytes)
-                return obj;
-            // Throws for not an object (undefined, null) bytes not an array (in constructor)
-            // Fills smaller, truncates larger N (does not respect sign if differing)
-            return new IntN(obj.bytes, obj.unsigned);
+        IntN.valueOf = function(val) {
+            if (typeof val === 'number')
+                return IntN.fromNumber(val);
+            else if (typeof val === 'string')
+                return IntN.fromString(val);
+            else if (val && val instanceof IntN && val.bytes.length == nBytes)
+                return val;
+            // Throws for not an object (undefined, null) bytes not an array (in constructor),
+            // fills smaller, truncates larger N (does not respect sign if differing):
+            return new IntN(val.bytes, val.unsigned);
+        };
+
+        /**
+         * Casts this IntN of size N to the specified target IntN of size M.
+         * @param {!Function} TargetIntN Target IntN class
+         * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
+         * @returns {!IntN}
+         * @expose
+         */
+        IntN.prototype.cast = function(TargetIntN, unsigned) {
+            unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
+            var isNegative = this.isNegative(),
+                val = isNegative ? this.negate() : this;
+            val = new TargetIntN(val.bytes, unsigned);
+            return isNegative ? val.negate() : val;
         };
 
         // Basic constants
@@ -390,8 +420,14 @@
          * @expose
          */
         IntN.prototype.toInt = function() {
-            for (var i=0, result=0; i<Math.min(4, this.bytes.length); ++i)
-                result |= this.bytes[i] << (i*8);
+            var isNegative = this.isNegative(),
+                val = this;
+            if (isNegative) // retain msb
+                val = val.not();
+            for (var i=0, result=0; i<Math.min(4, val.bytes.length); ++i)
+                result |= val.bytes[i] << (i*8);
+            if (isNegative)
+                result = ~result;
             return this.unsigned ? result >>> 0 : result;
         };
 
@@ -646,7 +682,7 @@
          *  and {@link IntN#modulo} and is exposed statically in case both the result and the remainder are required.
          * @param {!IntN} dividend
          * @param {!IntN} divisor
-         * @returns {!{result: !IntN, remainder: !IntN}}
+         * @returns {!{quotient: !IntN, remainder: !IntN}}
          * @expose
          */
         IntN.divide = function(dividend, divisor) {
@@ -654,7 +690,7 @@
                 throw Error("division by zero");
             if (dividend.isZero())
                 return {
-                    "result": dividend.unsigned ? IntN.UZERO : IntN.ZERO,
+                    "quotient": dividend.unsigned ? IntN.UZERO : IntN.ZERO,
                     "remainder": dividend
                 };
             var isNegative = dividend.isNegative() !== divisor.isNegative(),
@@ -674,7 +710,7 @@
                 term = term.shiftRight(1, true);
             }
             return {
-                "result": isNegative ? quotient.negate() : quotient,
+                "quotient": isNegative ? quotient.negate() : quotient,
                 "remainder": remainder
             };
         };
@@ -688,7 +724,7 @@
         IntN.prototype.divide = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            return IntN.divide(this, other)['result'];
+            return IntN.divide(this, other)['quotient'];
         };
 
         /**
@@ -816,7 +852,7 @@
                 return '0';
             if (this.isNegative()) {
                 if (this.equals(IntN.MIN_VALUE)) { // -MIN_VALUE = MIN_VALUE
-                    var div = IntN.divide(this, radix)['result'],
+                    var div = IntN.divide(this, radix)['quotient'],
                         rem = div.multiply(radix).subtract(this);
                     return div.toString(radix) + rem.toInt().toString(radix.toInt());
                 }
@@ -829,7 +865,7 @@
             do
                 mod = result.modulo(radix),
                 digits.unshift(DIGITS.charAt(mod.toInt())),
-                result = IntN.divide(result, radix)['result'];
+                result = IntN.divide(result, radix)['quotient'];
             while (!result.equals(zero));
             return digits.join('');
         };
@@ -837,9 +873,9 @@
         /**
          * The alias names of static and prototype methods.
          * @type {!{statics: !Object.<string,!Array.<string>>, prototype: !Object.<string,!Array.<string>>}}
-         * @expose
+         * @inner
          */
-        IntN.aliases = {
+        var aliases = {
             statics: {
                 // General utility
                 'isIntN': ['isInt'+nBits]
@@ -873,7 +909,7 @@
         };
 
         // Setup aliases
-        (function(aliases) {
+        (function() {
             var key, i;
             for (key in aliases.statics)
                 if (aliases.statics.hasOwnProperty(key))
@@ -883,7 +919,7 @@
                 if (aliases.prototype.hasOwnProperty(key))
                     for (i=0; i<aliases.prototype[key].length; ++i)
                         IntN.prototype[aliases.prototype[key][i]] = IntN.prototype[key];
-        })(IntN.aliases);
+        })();
         
         return IntN;
         

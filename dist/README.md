@@ -7,7 +7,7 @@ Distributions
 * **[IntN.min.js](https://raw.githubusercontent.com/dcodeIO/IntN.js/master/dist/IntN.min.js)**  
   has been compiled with Closure Compiler using `--compilation_level=ADVANCED_OPTIMIZATIONS`.
   
-* **[IntN.min.js.gz](https://raw.githubusercontent.com/dcodeIO/IntN.js/master/dist/IntN.min.js.gz)**
+* **[IntN.min.js.gz](https://raw.githubusercontent.com/dcodeIO/IntN.js/master/dist/IntN.min.js.gz)**  
   has also been gzipped using `-9`.
   
 * **[IntN.min.map](https://raw.githubusercontent.com/dcodeIO/IntN.js/master/dist/IntN.min.map)**  

@@ -160,18 +160,35 @@ function runCases(method, test, cases) {
 // Tests compatibility between JavaScript's 32bit integers (that's all we have) and IntN(32)
 var suite = {
     
-    "isIntN": function(test) {
-        test.strictEqual(Int32.isIntN, Int32.isInt32);
-        test.strictEqual(Int32.isIntN(undefined), false);
-        test.strictEqual(Int32.isIntN(null), false);
-        test.strictEqual(Int32.isIntN(1), false);
-        test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0] }), false);
-        test.strictEqual(Int32.isIntN({ unsigned: false }), false);
-        test.strictEqual(Int32.isIntN({ bytes: [0,0,0], unsigned: false }), false);
-        test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false }), true);
-        test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false, foo: "bar" }), true);
-        test.strictEqual(Int32.isIntN({ bytes: [256,0,0,0], unsigned: false, foo: "bar" }), true); // This is not checked
-        test.done();
+    "utility": {
+        
+        "isIntN": function(test) {
+            test.strictEqual(Int32.isIntN, Int32.isInt32);
+            test.strictEqual(Int32.isIntN(undefined), false);
+            test.strictEqual(Int32.isIntN(null), false);
+            test.strictEqual(Int32.isIntN(1), false);
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0] }), false);
+            test.strictEqual(Int32.isIntN({ unsigned: false }), false);
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0], unsigned: false }), false);
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false }), true);
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false, foo: "bar" }), true);
+            test.strictEqual(Int32.isIntN({ bytes: [256,0,0,0], unsigned: false, foo: "bar" }), true); // This is not checked
+            test.done();
+        },
+        
+        "cast": function(test) {
+            var Int16 = IntN(16);            
+            var val32 = Int32.MIN_VALUE,
+                val16 = Int16.MIN_VALUE;
+            test.strictEqual(val16.cast(Int32).toInt(), val16.toInt());
+            test.strictEqual(val32.cast(Int16).toInt(), 0);
+            val32 = Int32.MAX_VALUE;
+            val16 = Int16.MAX_VALUE;
+            test.strictEqual(val16.cast(Int32).toInt(), val16.toInt());
+            test.strictEqual(val32.cast(Int16).toInt(), -1);
+            test.done();
+        }
+        
     },
     
     "constants": {

@@ -25,8 +25,8 @@ var Int8  = IntN(8),
     ...
 ```
 
-The API documentation in this case references the usage of the classes created by the function `IntN`.
-
+The API documentation in this case references the usage of the classes created by the function `IntN`. `IntN` instances
+are immutable and all methods that return an `IntN` are chainable.
 
 API
 ---
@@ -114,24 +114,16 @@ Signed zero.
 | **@type**       | *!IntN*         |
 | **@access**     | *public const*  |
 
-#### IntN.aliases
-
-The alias names of static and prototype methods.
-
-|                 |                 |
-|-----------------|-----------------|
-| **@type**       | *!{statics: !Object.&lt;string,!Array.&lt;string&gt;&gt;, prototype: !Object.&lt;string,!Array.&lt;string&gt;&gt;}* |
-
 #### IntN.divide(dividend, divisor)
 
 Divides the specified dividend by the specified divisor. This method is used internally by [IntN#divide](#intndivideother)
-and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the result and the remainder are required.
+and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the quotient and the remainder are required.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | dividend        | *!IntN*         | 
 | divisor         | *!IntN*         | 
-| **@returns**    | *!{result: !IntN, remainder: !IntN}* | 
+| **@returns**    | *!{quotient: !IntN, remainder: !IntN}* | 
 
 #### IntN.fromInt(value, unsigned=)
 
@@ -499,7 +491,7 @@ Performs a bitwise xor (^) operation and returns the result.
 ### Aliases
 
 Most of the methods have a couple of aliases to maintain compatibility with other libraries, to make it more convenient
-to use or simply to to keep your code small:
+to use or simply to keep your code small:
 
 ##### General utility:
 
@@ -541,7 +533,7 @@ If you like it rather formal:
 var a = Int32.fromNumber(1),
     b = Int32.fromNumber(2);
     
-var c = a['+'](b);
+var c = a['+'](b)['/'](3);
 ```
 
 Downloads
