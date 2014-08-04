@@ -15,6 +15,24 @@ Constructs a new IntN.
 
 ---
 
+#### IntN.BITS
+
+Number of bits represented by this IntN class.
+
+|                 |                 |
+|-----------------|-----------------|
+| **@type**       | *number*        |
+| **@access**     | *public const*  |
+
+#### IntN.BYTES
+
+Number of bytes represented by this IntN class.
+
+|                 |                 |
+|-----------------|-----------------|
+| **@type**       | *number*        |
+| **@access**     | *public const*  |
+
 #### IntN.MAX_UNSIGNED_VALUE
 
 Maximum unsigned value.
@@ -87,14 +105,6 @@ Signed zero.
 | **@type**       | *!IntN*         |
 | **@access**     | *public const*  |
 
-#### IntN.aliases
-
-The alias names of static and prototype methods.
-
-|                 |                 |
-|-----------------|-----------------|
-| **@type**       | *!{statics: !Object.&lt;string,!Array.&lt;string&gt;&gt;, prototype: !Object.&lt;string,!Array.&lt;string&gt;&gt;}* |
-
 #### IntN.divide(dividend, divisor)
 
 Divides the specified dividend by the specified divisor. This method is used internally by [IntN#divide](#intndivideother)
@@ -104,7 +114,7 @@ and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the r
 |-----------------|-----------------|---------------
 | dividend        | *!IntN*         | 
 | divisor         | *!IntN*         | 
-| **@returns**    | *!{result: !IntN, remainder: !IntN}* | 
+| **@returns**    | *!{quotient: !IntN, remainder: !IntN}* | 
 
 #### IntN.fromInt(value, unsigned=)
 
@@ -134,8 +144,10 @@ Converts a string using the specified radix to an IntN.
 |-----------------|-----------------|---------------
 | value           | *string*        | String 
 | unsigned        | *boolean &#124; number* | Whether unsigned or not, defaults to `false` for signed (omittable) 
-| radix           | *number*        | Radix, defaults to `10` 
+| radix           | *number*        | Radix (2-36), defaults to 10 
 | **@returns**    | *!IntN*         | 
+| **@throws**     | *RangeError*    | If `radix` is out of range 
+| **@throws**     | *Error*         | If `value` contains illegal characters 
 
 #### IntN.isIntN(obj)
 
@@ -146,13 +158,13 @@ Tests if an object is an N bit integer, where N is this class's number of bits.
 | obj             | ***             | Object to test 
 | **@returns**    | *boolean*       | `true` if it is an N bit integer, otherwise `false` 
 
-#### IntN.valueOf(obj)
+#### IntN.valueOf(val)
 
-Converts the specified object to an IntN.
+Converts the specified value to an IntN.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| obj             | *number &#124; string &#124; !{bytes: !Array.&lt;number&gt;, unsigned: boolean}* | Object 
+| val             | *number &#124; string &#124; !{bytes: !Array.&lt;number&gt;, unsigned: boolean}* | Value 
 | **@returns**    | *!IntN*         | 
 
 ---
@@ -197,6 +209,16 @@ Performs a bitwise and (&) operation and returns the resulting Int.
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | other           | *!IntN &#124; number &#124; string* | Other number 
+| **@returns**    | *!IntN*         | 
+
+#### IntN#cast(TargetIntN, unsigned=)
+
+Casts this IntN of size N to the specified target IntN of size M.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| TargetIntN      | *!Function*     | Target IntN class 
+| unsigned        | *boolean*       | Whether unsigned or not, defaults to this' [IntN#unsigned](#intnunsigned) 
 | **@returns**    | *!IntN*         | 
 
 #### IntN#compare(other)
@@ -447,8 +469,9 @@ Converts this IntN to a string of the specified radix.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| radix           | *!IntN &#124; number &#124; string* | Radix, defaults to `10` 
+| radix           | *!IntN &#124; number &#124; string* | Radix (2-36), defaults to 10 
 | **@returns**    | *string*        | 
+| **@throws**     | *RangeError*    | If `radix` is out of range 
 
 #### IntN#toUnsigned()
 
