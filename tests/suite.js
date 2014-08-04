@@ -617,7 +617,19 @@ var suite = {
             runCases("divide", test);
             test.done();
         }
-    }
+    },
+    
+    /* "analysis": {
+        
+        "NEW_COUNT": function(test) {
+            // Testing showed that using a common / small int32 cache (-255 to 255 plus common constants) reduced the
+            // test suite's new count by about 1% at the cost of slowing its execution down by 9%. As a result, caching
+            // has been discarded to provide rather better execution speed than lower memory consumption.
+            test.log(Int32.NEW_COUNT);
+            test.done();
+        }
+        
+    } */
 };
 
 module.exports = {

@@ -3,9 +3,6 @@
 **IntN.js** is capable of representing arbitrary byte size integers in JavaScript, both signed and unsigned, and
 implements the bitwise and arithmetic operations required to conveniently work with their values.
 
-While the library is battle-tested against JavaScript's 32bit integers with ~37k assertions, it is still in its early
-stages. Please [create an issue](https://github.com/dcodeIO/IntN.js/issues) if something isn't working as expected.
-
 Usage
 -----
 The module exports a function that creates classes representing integers of the specified size in bits (positive
@@ -28,7 +25,8 @@ var Int8  = IntN(8),
 
 API
 ---
-Instances are immutable and all methods that return another instance are chainable.
+Instances are immutable and all methods that return another instance are chainable. Instance values are easily
+interchangeable using their [bytes](#intnbytes-1) property.
 
 #### new IntN(bytes, unsigned=)
 

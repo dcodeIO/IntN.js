@@ -111,7 +111,17 @@
              * @expose
              */
             this.unsigned = !!unsigned;
+            
+            // ++IntN.NEW_COUNT;
         }
+
+        /**
+         * Number of so far created instances for performance analysis.
+         * @type {number}
+         * @private
+         * @expose
+         */
+        // IntN.NEW_COUNT = 0;
 
         // General utility
 
@@ -405,14 +415,18 @@
          */
         IntN.fromInt = function(value, unsigned) {
             value = value|0;
-            if (value < 0)
-                return value === IntN.MIN_VALUE.toInt()
-                    ? IntN.MIN_VALUE // -MIN_VALUE = MIN_VALUE
-                    : IntN.fromInt(-value, unsigned).negate();
+            var val;
+            if (value < 0) {
+                if (value === int32_min_value) // -MIN_VALUE = MIN_VALUE
+                    return IntN.MIN_VALUE;
+                val = IntN.fromInt(-value, unsigned).negate();
+                return val;
+            }
             var bytes = new Array(nBytes);
             for (var i=0; i<nBytes; ++i)
                 bytes[i] = (value >>> (i*8)) & 0xff;
-            return new IntN(bytes, unsigned);
+            val = new IntN(bytes, unsigned);
+            return val;
         };
 
         /**
@@ -433,23 +447,6 @@
         };
 
         // Number conversion
-
-        /**
-         * Relevant powers (0-7) of 256.
-         * @type {!Array.<number>}
-         * @const
-         * @inner
-         */
-        var double_256_pwr = [
-            1,
-            256,
-            65536,
-            16777216,
-            4294967296,
-            1099511627776,
-            281474976710656
-            // >= ^7 is inexact
-        ];
 
         /**
          * Constructs an IntN from a number (double, 52 bit mantissa) value.
@@ -481,7 +478,7 @@
             if (this.isZero())
                 return 0;
             if (this.isNegative())
-                return this.equals(IntN.MIN_VALUE) ? 0x80000000|0 : -this.negate().toNumber(); // -MIN_VALUE = MIN_VALUE
+                return this.equals(IntN.MIN_VALUE) ? +int32_min_value : -this.negate().toNumber(); // -MIN_VALUE = MIN_VALUE
             // now always gt 0:
             for (var i=0, result=0, k=Math.min(nBytes, 7); i<k; ++i) // 7 bytes = 56 bits
                 result += this.bytes[i] * double_256_pwr[i];
@@ -781,14 +778,6 @@
         // String conversion
 
         /**
-         * Valid characters for string conversion.
-         * @type {string}
-         * @const
-         * @inner
-         */
-        var chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-        /**
          * IntN representing 2.
          * @type {!IntN}
          * @const
@@ -880,47 +869,10 @@
             return digits.join('');
         };
 
-        /**
-         * The alias names of static and prototype methods.
-         * @type {!{statics: !Object.<string,!Array.<string>>, prototype: !Object.<string,!Array.<string>>}}
-         * @inner
-         */
-        var aliases = {
-            statics: {
-                // General utility
-                'isIntN': ['isInt'+nBits]
-            },
-            prototype: {
-                // Arithmetic evaluation
-                'compare': ['comp'],
-                'equals': ['eq', 'equal', '=='],
-                'notEquals': ['ne', 'notEqual', '!='],
-                'lessThan': ['lt', 'less', 'lesser', '<'],
-                'lessThanEqual': ['lte', 'lessThanOrEqual', '<='],
-                'greaterThan': ['gt', 'greater', '>'],
-                'greaterThanEqual': ['gte', 'greaterThanOrEqual', '>='],
-                // Bitwise operations
-                'not': ['~'],
-                'and': ['&'],
-                'or': ['|'],
-                'xor': ['^'],
-                'shiftLeft': ['lsh', 'leftShift', '<<'],
-                'shiftRight': ['rsh', 'rightShift', '>>'],
-                'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
-                // Arithmetic operations
-                'add': ['plus', '+'],
-                'negate': ['neg', '!'],
-                'subtract': ['sub', 'minus', '-'],
-                'absolute': ['abs', '||'],
-                'multiply': ['mult', '*'],
-                'divide': ['div', '/'],
-                'modulo': ['mod', '%']
-            }
-        };
-
         // Setup aliases
         (function() {
             var key, i;
+            IntN['isInt'+nBits] = IntN.isIntN;
             for (key in aliases.statics)
                 if (aliases.statics.hasOwnProperty(key))
                     for (i=0; i<aliases.statics[key].length; ++i)
@@ -934,6 +886,93 @@
         return IntN;
         
     } // makeIntN
+
+    /**
+     * Minimum 32bit signed integer value.
+     * @type {number}
+     * @const
+     * @inner
+     */
+    var int32_min_value = 0x80000000|0;
+
+    /**
+     * Maximum 32bit signed integer value.
+     * @type {number}
+     * @const
+     * @inner
+     */
+    var int32_max_value = 0x7fffffff|0;
+
+    /**
+     * Maximum 32bit unsigned integer value.
+     * @type {number}
+     * @const
+     * @inner
+     */
+    var int32_max_unsigned_value = 0xffffffff>>>0;
+
+    /**
+     * Relevant powers (0-7) of 256 for number conversion.
+     * @type {!Array.<number>}
+     * @const
+     * @inner
+     */
+    var double_256_pwr = [
+        1,
+        256,
+        65536,
+        16777216,
+        4294967296,
+        1099511627776,
+        281474976710656
+        // >= ^7 is inexact
+    ];
+
+    /**
+     * Valid characters for string conversion.
+     * @type {string}
+     * @const
+     * @inner
+     */
+    var chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+    /**
+     * Alias names of static and prototype methods.
+     * @type {!{statics: !Object.<string,!Array.<string>>, prototype: !Object.<string,!Array.<string>>}}
+     * @inner
+     */
+    var aliases = {
+        statics: {
+            // General utility
+            // 'isIntN': ['isInt'+nBits] // not known yet
+        },
+        prototype: {
+            // Arithmetic evaluation
+            'compare': ['comp'],
+            'equals': ['eq', 'equal', '=='],
+            'notEquals': ['ne', 'notEqual', '!='],
+            'lessThan': ['lt', 'less', 'lesser', '<'],
+            'lessThanEqual': ['lte', 'lessThanOrEqual', '<='],
+            'greaterThan': ['gt', 'greater', '>'],
+            'greaterThanEqual': ['gte', 'greaterThanOrEqual', '>='],
+            // Bitwise operations
+            'not': ['~'],
+            'and': ['&'],
+            'or': ['|'],
+            'xor': ['^'],
+            'shiftLeft': ['lsh', 'leftShift', '<<'],
+            'shiftRight': ['rsh', 'rightShift', '>>'],
+            'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
+            // Arithmetic operations
+            'add': ['plus', '+'],
+            'negate': ['neg', '!'],
+            'subtract': ['sub', 'minus', '-'],
+            'absolute': ['abs', '||'],
+            'multiply': ['mult', '*'],
+            'divide': ['div', '/'],
+            'modulo': ['mod', '%']
+        }
+    };
 
     /* CommonJS */ if (typeof module !== 'undefined' && module["exports"])
         module["exports"] = makeIntN;

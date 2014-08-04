@@ -1,6 +1,6 @@
 {
     "name": "intn",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "author": "Daniel Wirtz <dcode@dcode.io>",
     "description": "A class for representing arbitrary byte size integers, signed and unsigned.",
     "main": "index.js",
