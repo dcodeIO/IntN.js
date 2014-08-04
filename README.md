@@ -3,9 +3,8 @@ IntN.js
 **IntN.js** is capable of representing arbitrary byte size integers in JavaScript, both signed and unsigned, and
 implements the bitwise and arithmetic operations required to conveniently work with their values.
 
-Please note that this library is in its early stages and hasn't been tested much. It is meant to replace
-[Long.js](https://github.com/dcodeIO/Long.js) eventually and `var Int64 = IntN(64)` should actually be API-compatible
-to it.
+While the library is battle-tested against JavaScript's 32bit integers with ~37k assertions, it is still in its early
+stages. Please [create an issue](https://github.com/dcodeIO/IntN.js/issues) if something isn't working as expected.
 
 Usage
 -----
