@@ -2,7 +2,7 @@
     "name": "intn",
     "version": "0.8.0",
     "author": "Daniel Wirtz <dcode@dcode.io>",
-    "description": "A class for representing arbitrary byte size integers, signed and unsigned.",
+    "description": "A library for representing and working with arbitrary byte size two's complement integers, signed and unsigned.",
     "main": "index.js",
     "repository": {
         "type": "git",

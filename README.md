@@ -1,7 +1,8 @@
-![IntN.js - Arbitrary size integers](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
+![IntN.js - Arbitrary byte size integers in JavaScript](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
 =======
-**IntN.js** is a library to represent and work with arbitrary byte size integers in JavaScript, both signed and
-unsigned.
+**IntN.js** is a library for representing and working with arbitrary byte size two's complement integers in JavaScript,
+both signed and unsigned. Its main goal is to provide a robust and convenient way to work with data types that are not
+available in JavaScript natively, like 64 bit `long`s.
 
 Usage
 -----
