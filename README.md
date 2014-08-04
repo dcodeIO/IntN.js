@@ -1,4 +1,4 @@
-IntN.js
+![IntN.js - Arbitrary size integers](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
 =======
 **IntN.js** is capable of representing arbitrary byte size integers in JavaScript, both signed and unsigned, and
 implements the bitwise and arithmetic operations required to conveniently work with their values.
