@@ -160,6 +160,12 @@ function runCases(method, test, cases) {
 // Tests compatibility between JavaScript's 32bit integers (that's all we have) and IntN(32)
 var suite = {
     
+    "singleton": function(test) {
+        test.strictEqual(Int32, IntN(32));
+        test.strictEqual(IntN(64), IntN(64));
+        test.done();
+    },
+    
     "utility": {
         
         "isIntN": function(test) {

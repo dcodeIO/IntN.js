@@ -1,12 +1,12 @@
 ![IntN.js - Arbitrary size integers](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
 =======
-**IntN.js** is capable of representing arbitrary byte size integers in JavaScript, both signed and unsigned, and
-implements the bitwise and arithmetic operations required to conveniently work with their values.
+**IntN.js** is a library to represent and work with arbitrary byte size integers in JavaScript, both signed and
+unsigned.
 
 Usage
 -----
 The module exports a function that creates classes representing integers of the specified size in bits (positive
-multiple of 8). It's compatible with CommonJS and AMD loaders and is exposed globally as `dcodeIO.IntN` if neither is
+multiple of 8). It is compatible with CommonJS and AMD loaders and is exposed globally as `dcodeIO.IntN` if neither is
 available.
 
 ```js

@@ -30,6 +30,10 @@
     function makeIntN(nBits) {
         if (nBits <= 0 || (nBits%8) !== 0)
             throw Error("illegal number of bits: "+nBits+" (not a positive multiple of 8)");
+        
+        // Make sure to return singleton classes
+        if (classes[nBits])
+            return classes[nBits];
 
         /**
          * Number of bits represented by this IntN class.
@@ -883,9 +887,16 @@
                         IntN.prototype[aliases.prototype[key][i]] = IntN.prototype[key];
         })();
         
-        return IntN;
+        return classes[nBits] = IntN;
         
     } // makeIntN
+
+    /**
+     * Classes cache.
+     * @type {!Object.<number,!Function>}
+     * @inner
+     */
+    var classes = {};
 
     /**
      * Minimum 32bit signed integer value.
