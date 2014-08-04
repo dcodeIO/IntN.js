@@ -24,11 +24,11 @@ var Int8  = IntN(8),
     ...
 ```
 
-The API documentation in this case references the usage of the classes created by the function `IntN`. Instances are
-immutable and all methods that return another instance are chainable.
+**Important:** The following API documentation references the usage of the classes created by the exported function.
 
 API
 ---
+Instances are immutable and all methods that return another instance are chainable.
 
 #### new IntN(bytes, unsigned=)
 
