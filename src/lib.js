@@ -108,7 +108,7 @@ var IntN = (function() {
 
         /**
          * Converts the specified value to an IntN.
-         * @param {number|string|!{bytes: !Array.<number>, unsigned: boolean}|{low: number, high: number}} val Value
+         * @param {!IntN|number|string|!{bytes: !Array.<number>, unsigned: boolean}|{low: number, high: number, unsigned: boolean}} val Value
          * @returns {!IntN}
          * @expose
          */
@@ -119,8 +119,8 @@ var IntN = (function() {
                 return IntN.fromString(val);
             else if (val && val instanceof IntN && val.bytes.length === nBytes)
                 return val;
-            else if (val && typeof val.low === 'number' && typeof val.high === 'number')
-                return IntN.fromInts([val.low, val.high], val.unsigned); // for Long.js v1 compatibility
+            else if (val && typeof val.low === 'number' && typeof val.high === 'number' && typeof val.unsigned === 'boolean')
+                return IntN.fromInts([val.low, val.high], val.unsigned); // for Long.js v1 compatibility           
             
             // Throws for not an object (undefined, null) bytes not an array (in constructor),
             // fills smaller, truncates larger N (does not respect sign if differing):
@@ -305,10 +305,9 @@ var IntN = (function() {
         IntN.prototype.compare = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            if (this.isNegative() && !other.isNegative())
-                return -1;
-            if (!this.isNegative() && other.isNegative())
-                return 1;
+            var isNegative = this.isNegative();
+            if (isNegative !== other.isNegative())
+                return isNegative ? -1 : 1;
             for (var i=maxIndex; i>=0; --i)
                 if (this.bytes[i] < other.bytes[i])
                     return -1;
@@ -380,7 +379,7 @@ var IntN = (function() {
         // Integer conversion
 
         /**
-         * Constructs an IntN from a 32bit integer value.
+         * Constructs an IntN from a 32 bit integer value.
          * @param {number} value Integer value
          * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
          * @returns {!IntN}
@@ -395,15 +394,16 @@ var IntN = (function() {
                 val = IntN.fromInt(-value, unsigned).negate();
                 return val;
             }
-            var bytes = new Array(nBytes);
-            for (var i=0; i<nBytes; ++i)
-                bytes[i] = (value >>> (i*8)) & 0xff;
+            var bytes = zeroes.slice(0, nBytes);
+            for (var i=0; i<nBytes && value !== 0; ++i)
+                bytes[i] = value & 0xff,
+                value = value >>> 8;
             val = new IntN(bytes, unsigned);
             return val;
         };
 
         /**
-         * Converts this IntN to a 32bit integer.
+         * Converts this IntN to a 32 bit integer.
          * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
          * @returns {number}
          * @expose
@@ -420,8 +420,8 @@ var IntN = (function() {
         };
 
         /**
-         * Reassembles an IntN from an array of 32bit integers, least significant first.
-         * @param {!Array.<number>} ints Array of 32bit integers
+         * Reassembles an IntN from an array of 32 bit integers, least significant first.
+         * @param {!Array.<number>} ints Array of 32 bit integers
          * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
          * @returns {!IntN}
          * @expose
@@ -440,7 +440,7 @@ var IntN = (function() {
         };
 
         /**
-         * Disassembles this IntN into an array of 32bit integers, least significant first.
+         * Disassembles this IntN into an array of 32 bit integers, least significant first.
          * @returns {!Array.<number>}
          * @expose
          */
@@ -485,8 +485,6 @@ var IntN = (function() {
          * @expose
          */
         IntN.prototype.toNumber = function() {
-            if (this.isZero())
-                return 0;
             if (this.isNegative())
                 return this.equals(IntN.MIN_VALUE) ? +int32_min_value : -this.negate().toNumber(); // -MIN_VALUE = MIN_VALUE
             // now always gt 0:
@@ -631,13 +629,11 @@ var IntN = (function() {
         IntN.prototype.add = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            if (other.isZero())
-                return this;
-            if (this.isZero())
-                return this.unsigned ? other.toUnsigned() : other.toSigned();
             var carry = this.and(other),
                 result = this.xor(other),
                 carryPwr2;
+            // There seem to be no performance benefits testing against == 0 or == 1 (test probably too costly in avg).
+            // Thus, such optimization should be implemented by the user explicitly where these cases are likely.
             while (!carry.isZero())
                 carryPwr2 = carry.shiftLeft(1),
                 carry = result.and(carryPwr2),
@@ -694,8 +690,7 @@ var IntN = (function() {
         IntN.prototype.multiply = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            if (this.isZero()) // other == 0 will break the loop below early while this == 0 will not
-                return this;
+            // See comment in #add above
             var isNegative = this.isNegative() !== other.isNegative(),
                 a = this.absolute(),
                 b = other.absolute(),
@@ -717,11 +712,7 @@ var IntN = (function() {
         IntN.divide = function(dividend, divisor) {
             if (divisor.isZero())
                 throw Error("division by zero");
-            if (dividend.isZero())
-                return {
-                    "quotient": dividend.unsigned ? IntN.UZERO : IntN.ZERO,
-                    "remainder": dividend
-                };
+            // See comment in #add multiply
             var isNegative = dividend.isNegative() !== divisor.isNegative(),
                 quotient = dividend.unsigned ? IntN.UZERO : IntN.ZERO,
                 remainder = dividend.absolute(),
@@ -861,8 +852,6 @@ var IntN = (function() {
             if (radix.lessThan(IntN_2) || radix.greaterThan(IntN_36))
                 throw RangeError("radix out of range: "+radix.toInt()+" (2-36)");
             var zero = this.unsigned ? IntN.UZERO : IntN.ZERO;
-            if (this.equals(zero))
-                return '0';
             if (this.isNegative()) {
                 if (this.equals(IntN.MIN_VALUE)) { // -MIN_VALUE = MIN_VALUE
                     var div = IntN.divide(this, radix)['quotient'],
@@ -885,14 +874,10 @@ var IntN = (function() {
 
         // Setup aliases
         IntN['isInt'+nBits] = IntN.isIntN;
-        for (var key in aliases.statics)
-            if (aliases.statics.hasOwnProperty(key))
-                for (i=0; i<aliases.statics[key].length; ++i)
-                    IntN[aliases.statics[key][i]] = IntN[key];
-        for (key in aliases.prototype)
-            if (aliases.prototype.hasOwnProperty(key))
-                for (i=0; i<aliases.prototype[key].length; ++i)
-                    IntN.prototype[aliases.prototype[key][i]] = IntN.prototype[key];
+        for (var key in aliases)
+            if (aliases.hasOwnProperty(key))
+                for (i=0; i<aliases[key].length; ++i)
+                    IntN.prototype[aliases[key][i]] = IntN.prototype[key];
 
         return classes[nBits] = IntN;
 
@@ -906,7 +891,7 @@ var IntN = (function() {
     var classes = {};
 
     /**
-     * Minimum 32bit signed integer value.
+     * Minimum 32 bit signed integer value.
      * @type {number}
      * @const
      * @inner
@@ -940,40 +925,34 @@ var IntN = (function() {
 
     /**
      * Alias names of static and prototype methods.
-     * @type {!{statics: !Object.<string,!Array.<string>>, prototype: !Object.<string,!Array.<string>>}}
+     * @type {!Object.<string,!Array.<string>>}}
      * @inner
      */
     var aliases = {
-        statics: {
-            // General utility
-            // 'isIntN': ['isInt'+nBits] // not known yet
-        },
-        prototype: {
-            // Arithmetic evaluation
-            'compare': ['comp'],
-            'equals': ['eq', 'equal', '=='],
-            'notEquals': ['ne', 'notEqual', '!='],
-            'lessThan': ['lt', 'less', 'lesser', '<'],
-            'lessThanEqual': ['lte', 'lessThanOrEqual', '<='],
-            'greaterThan': ['gt', 'greater', '>'],
-            'greaterThanEqual': ['gte', 'greaterThanOrEqual', '>='],
-            // Bitwise operations
-            'not': ['~'],
-            'and': ['&'],
-            'or': ['|'],
-            'xor': ['^'],
-            'shiftLeft': ['lsh', 'leftShift', '<<'],
-            'shiftRight': ['rsh', 'rightShift', '>>'],
-            'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
-            // Arithmetic operations
-            'add': ['plus', '+'],
-            'negate': ['neg', '!'],
-            'subtract': ['sub', 'minus', '-'],
-            'absolute': ['abs', '||'],
-            'multiply': ['mult', '*'],
-            'divide': ['div', '/'],
-            'modulo': ['mod', '%']
-        }
+        // Arithmetic evaluation
+        'compare': ['comp'],
+        'equals': ['eq', 'equal', '=='],
+        'notEquals': ['ne', 'notEqual', '!='],
+        'lessThan': ['lt', 'less', 'lesser', '<'],
+        'lessThanEqual': ['lte', 'lessThanOrEqual', '<='],
+        'greaterThan': ['gt', 'greater', '>'],
+        'greaterThanEqual': ['gte', 'greaterThanOrEqual', '>='],
+        // Bitwise operations
+        'not': ['~'],
+        'and': ['&'],
+        'or': ['|'],
+        'xor': ['^'],
+        'shiftLeft': ['lsh', 'leftShift', '<<'],
+        'shiftRight': ['rsh', 'rightShift', '>>'],
+        'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
+        // Arithmetic operations
+        'add': ['plus', '+'],
+        'negate': ['neg', '!'],
+        'subtract': ['sub', 'minus', '-'],
+        'absolute': ['abs', '||'],
+        'multiply': ['mult', '*'],
+        'divide': ['div', '/'],
+        'modulo': ['mod', '%']
     };
     
     return makeIntN;

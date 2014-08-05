@@ -174,7 +174,7 @@ Converts the specified value to an IntN.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| val             | *number &#124; string &#124; !{bytes: !Array.&lt;number&gt;, unsigned: boolean}* | Value 
+| val             | *!IntN &#124; number &#124; string &#124; !{bytes: !Array.&lt;number&gt;, unsigned: boolean} &#124; {low: number, high: number, unsigned: boolean}* | Value 
 | **@returns**    | *!IntN*         | 
 
 ---
