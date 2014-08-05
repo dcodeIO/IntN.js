@@ -1,14 +1,14 @@
 ![IntN.js - Arbitrary byte size integers in JavaScript](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
 =======
 **IntN.js** is a library for representing and working with arbitrary byte size two's complement integers in JavaScript,
-both signed and unsigned. Its main goal is to provide a robust and convenient way to work with data types that are not
+both signed and unsigned. Its purpose is to provide a robust and convenient way to work with data types that are not
 available in JavaScript natively, like 64 bit `long`s.
 
 Usage
 -----
-The module exports a function that creates classes representing integers of the specified size in bits (positive
-multiple of 8). It is compatible with CommonJS and AMD loaders and is exposed globally as `dcodeIO.IntN` if neither is
-available.
+The module exports a function that creates singleton classes representing integers of the specified size in bits
+(positive multiple of 8). It is compatible with CommonJS and AMD loaders and is exposed globally as `dcodeIO.IntN` if
+neither is available.
 
 ```js
 var IntN  = require("intn");
@@ -27,7 +27,8 @@ var Int8  = IntN(8),
 API
 ---
 Instances are immutable and all methods that return another instance are chainable. Instance values are easily
-interchangeable using their [bytes](#intnbytes-1) property.
+interchangeable using their [bytes](#intnbytes-1) property or the [fromInts](#intnfromintsints-unsigned) and
+[toInts](#intntoints) methods.
 
 #### new IntN(bytes, unsigned=)
 

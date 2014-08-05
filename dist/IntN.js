@@ -98,8 +98,6 @@
                  * @expose
                  */
                 this.unsigned = !!unsigned;
-
-                // ++IntN.NEW_COUNT;
             }
 
             /**
@@ -118,14 +116,6 @@
              */
             IntN.BYTES = nBytes;
 
-            /**
-             * Number of so far created instances for performance analysis.
-             * @type {number}
-             * @private
-             * @expose
-             */
-            // IntN.NEW_COUNT = 0;
-
             // General utility
 
             /**
@@ -141,7 +131,7 @@
 
             /**
              * Converts the specified value to an IntN.
-             * @param {number|string|!{bytes: !Array.<number>, unsigned: boolean}} val Value
+             * @param {number|string|!{bytes: !Array.<number>, unsigned: boolean}|{low: number, high: number}} val Value
              * @returns {!IntN}
              * @expose
              */
@@ -150,8 +140,11 @@
                     return IntN.fromNumber(val);
                 else if (typeof val === 'string')
                     return IntN.fromString(val);
-                else if (val && val instanceof IntN && val.bytes.length == nBytes)
+                else if (val && val instanceof IntN && val.bytes.length === nBytes)
                     return val;
+                else if (val && typeof val.low === 'number' && typeof val.high === 'number')
+                    return IntN.fromInts([val.low, val.high], val.unsigned); // for Long.js v1 compatibility
+
                 // Throws for not an object (undefined, null) bytes not an array (in constructor),
                 // fills smaller, truncates larger N (does not respect sign if differing):
                 return new IntN(val.bytes, val.unsigned);
@@ -589,9 +582,11 @@
             IntN.prototype.shiftLeft = function(numBits) {
                 if (IntN.isIntN(numBits))
                     numBits = numBits.toInt();
-                numBits &= nBits-1; // << 0 ^= << n
+                numBits %= nBits; // << 0 ^= << n
                 if (numBits === 0)
                     return this;
+                if (numBits < 0)
+                    numBits += nBits;
                 var numBytes = (numBits/8)|0; // Full byte skips
                 numBits %= 8; // Byte level bit skips
                 for (var i=0, bytes=zeroes.slice(0, nBytes), idx; i<nBytes; ++i) {
@@ -615,9 +610,11 @@
             IntN.prototype.shiftRight = function(numBits, logical) {
                 if (IntN.isIntN(numBits))
                     numBits = numBits.toInt();
-                numBits &= nBits-1; // >> 0 ^= >> n
+                numBits %= nBits; // >> 0 ^= >> n
                 if (numBits === 0)
                     return this;
+                if (numBits < 0)
+                    numBits += nBits;
                 var numBytes = (numBits/8)|0; // Full byte skips
                 numBits %= 8; // Byte level bit skips
                 var bytes = zeroes.slice(0, nBytes), i;
