@@ -105,10 +105,20 @@ Signed zero.
 | **@type**       | *!IntN*         |
 | **@access**     | *public const*  |
 
+#### IntN.add(a, b)
+
+Adds the specified IntNs and returns the sum. Does not type check arguments.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| a               | *!IntN*         | 
+| b               | *!IntN*         | 
+| **@returns**    | *!IntN*         | 
+
 #### IntN.divide(dividend, divisor)
 
-Divides the specified dividend by the specified divisor. This method is used internally by [IntN#divide](#intndivideother)
-and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the result and the remainder are required.
+Divides the specified dividend by the specified divisor and returns both the quotient and the remainder. Does
+not type check arguments.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -118,7 +128,7 @@ and [IntN#modulo](#intnmoduloother) and is exposed statically in case both the r
 
 #### IntN.fromInt(value, unsigned=)
 
-Constructs an IntN from a 32bit integer value.
+Constructs an IntN from a 32 bit integer value.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -128,11 +138,11 @@ Constructs an IntN from a 32bit integer value.
 
 #### IntN.fromInts(ints, unsigned=)
 
-Reassembles an IntN from an array of 32bit integers, least significant first.
+Reassembles an IntN from an array of 32 bit integers, least significant first.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| ints            | *!Array.&lt;number&gt;* | Array of 32bit integers 
+| ints            | *!Array.&lt;number&gt;* | Array of 32 bit integers 
 | unsigned        | *boolean*       | Whether unsigned or not, defaults to `false` for signed 
 | **@returns**    | *!IntN*         | 
 
@@ -167,6 +177,16 @@ Tests if an object is an N bit integer, where N is this class's number of bits.
 |-----------------|-----------------|---------------
 | obj             | ***             | Object to test 
 | **@returns**    | *boolean*       | `true` if it is an N bit integer, otherwise `false` 
+
+#### IntN.multiply(a, b)
+
+Multiplies the specified IntNs and returns the product. Does not type check arguments.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| a               | *!IntN*         | 
+| b               | *!IntN*         | 
+| **@returns**    | *!IntN*         | 
 
 #### IntN.valueOf(val)
 
@@ -205,7 +225,7 @@ Returns this IntN's absolute value as an unsigned IntN.
 
 #### IntN#add(other)
 
-Adds the specified to this IntN and returns the result.
+Adds the specified to this IntN and returns the sum.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -242,7 +262,7 @@ Compares this IntN with the specified.
 
 #### IntN#divide(other)
 
-Divides this IntN by the specified and returns the result.
+Divides this IntN by the specified and returns the quotient.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -352,7 +372,7 @@ Tests if this IntN is less than or equal (&lt;=) the specified.
 
 #### IntN#modulo(other)
 
-Returns the remainder of the division of this IntN by the specified.
+Divides this IntN by the specified and returns the remainder.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -361,7 +381,7 @@ Returns the remainder of the division of this IntN by the specified.
 
 #### IntN#multiply(other)
 
-Multiplies this IntN with the specified and returns the result.
+Multiplies this IntN with the specified and returns the product.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -432,7 +452,7 @@ Performs an unsigned shift right (&gt;&gt;&gt;) operation and returns the result
 
 #### IntN#subtract(other)
 
-Subtracts the specified from this IntN and returns the result.
+Subtracts the specified from this IntN and returns the difference.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -451,7 +471,7 @@ testing and debugging, followed by the character `U` if unsigned.
 
 #### IntN#toInt(unsigned=)
 
-Converts this IntN to a 32bit integer.
+Converts this IntN to a 32 bit integer.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
@@ -460,7 +480,7 @@ Converts this IntN to a 32bit integer.
 
 #### IntN#toInts()
 
-Disassembles this IntN into an array of 32bit integers, least significant first.
+Disassembles this IntN into an array of 32 bit integers, least significant first.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------

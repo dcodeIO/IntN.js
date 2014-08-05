@@ -144,7 +144,6 @@
                     return val;
                 else if (val && typeof val.low === 'number' && typeof val.high === 'number' && typeof val.unsigned === 'boolean')
                     return IntN.fromInts([val.low, val.high], val.unsigned); // for Long.js v1 compatibility
-
                 // Throws for not an object (undefined, null) bytes not an array (in constructor),
                 // fills smaller, truncates larger N (does not respect sign if differing):
                 return new IntN(val.bytes, val.unsigned);
@@ -644,16 +643,15 @@
             // Arithmetic operations
 
             /**
-             * Adds the specified to this IntN and returns the result.
-             * @param {!IntN|number|string} other Other number
+             * Adds the specified IntNs and returns the sum. Does not type check arguments.
+             * @param {!IntN} a
+             * @param {!IntN} b
              * @returns {!IntN}
              * @expose
              */
-            IntN.prototype.add = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                var carry = this.and(other),
-                    result = this.xor(other),
+            IntN.add = function(a, b) {
+                var carry = a.and(b),
+                    result = a.xor(b),
                     carryPwr2;
                 // There seem to be no performance benefits testing against == 0 or == 1 (test probably too costly in avg).
                 // Thus, such optimization should be implemented by the user explicitly where these cases are likely.
@@ -665,12 +663,24 @@
             };
 
             /**
+             * Adds the specified to this IntN and returns the sum.
+             * @param {!IntN|number|string} other Other number
+             * @returns {!IntN}
+             * @expose
+             */
+            IntN.prototype.add = function(other) {
+                if (!IntN.isIntN(other))
+                    other = IntN.valueOf(other);
+                return IntN.add(this, other);
+            };
+
+            /**
              * Negates this IntN (*-1) and returns the result.
              * @returns {!IntN}
              * @expose
              */
             IntN.prototype.negate = function() {
-                return this.not().add(IntN.ONE);
+                return IntN.add(this.not(), IntN.ONE);
             };
 
             /**
@@ -682,7 +692,7 @@
             IntN.NEG_ONE = IntN.ONE.negate();
 
             /**
-             * Subtracts the specified from this IntN and returns the result.
+             * Subtracts the specified from this IntN and returns the difference.
              * @param {!IntN|number|string} other Other number
              * @returns {!IntN}
              * @expose
@@ -690,7 +700,7 @@
             IntN.prototype.subtract = function(other) {
                 if (!IntN.isIntN(other))
                     other = IntN.valueOf(other);
-                return this.add(other.negate());
+                return IntN.add(this, other.negate());
             };
 
             /**
@@ -705,7 +715,26 @@
             };
 
             /**
-             * Multiplies this IntN with the specified and returns the result.
+             * Multiplies the specified IntNs and returns the product. Does not type check arguments.
+             * @param {!IntN} a
+             * @param {!IntN} b
+             * @returns {!IntN}
+             * @expose
+             */
+            IntN.multiply = function(a, b) {
+                // See comment in add above
+                var isNegative = a.isNegative() !== b.isNegative(),
+                    result = a.unsigned ? IntN.UZERO : IntN.ZERO;
+                a = a.absolute();
+                b = b.absolute();
+                for(;!b.isZero(); a=a.shiftLeft(1), b=b.shiftRight(1, true))
+                    if ((b.bytes[0] & 1) === 1)
+                        result = IntN.add(result, a);
+                return isNegative ? result.negate() : result;
+            };
+
+            /**
+             * Multiplies this IntN with the specified and returns the product.
              * @param {!IntN|number|string} other Other number
              * @returns {!IntN}
              * @expose
@@ -713,20 +742,12 @@
             IntN.prototype.multiply = function(other) {
                 if (!IntN.isIntN(other))
                     other = IntN.valueOf(other);
-                // See comment in #add above
-                var isNegative = this.isNegative() !== other.isNegative(),
-                    a = this.absolute(),
-                    b = other.absolute(),
-                    result = this.unsigned ? IntN.UZERO : IntN.ZERO;
-                for(;!b.isZero(); a=a.shiftLeft(1), b=b.shiftRight(1, true))
-                    if ((b.bytes[0] & 1) === 1)
-                        result = result.add(a);
-                return isNegative ? result.negate() : result;
+                return IntN.multiply(this, other);
             };
 
             /**
-             * Divides the specified dividend by the specified divisor. This method is used internally by {@link IntN#divide}
-             *  and {@link IntN#modulo} and is exposed statically in case both the result and the remainder are required.
+             * Divides the specified dividend by the specified divisor and returns both the quotient and the remainder. Does
+             *  not type check arguments.
              * @param {!IntN} dividend
              * @param {!IntN} divisor
              * @returns {!{quotient: !IntN, remainder: !IntN}}
@@ -735,7 +756,7 @@
             IntN.divide = function(dividend, divisor) {
                 if (divisor.isZero())
                     throw Error("division by zero");
-                // See comment in #add multiply
+                // See comment in #add above
                 var isNegative = dividend.isNegative() !== divisor.isNegative(),
                     quotient = dividend.unsigned ? IntN.UZERO : IntN.ZERO,
                     remainder = dividend.absolute(),
@@ -747,8 +768,8 @@
                     term = term.shiftLeft(1);
                 while (term.greaterThanEqual(IntN.UONE)) {
                     if (product.lessThanEqual(remainder))
-                        quotient = quotient.add(term),
-                        remainder = remainder.subtract(product);
+                        quotient = IntN.add(quotient, term),
+                        remainder = IntN.add(remainder, product.negate());
                     product = product.shiftRight(1, true);
                     term = term.shiftRight(1, true);
                 }
@@ -759,7 +780,7 @@
             };
 
             /**
-             * Divides this IntN by the specified and returns the result.
+             * Divides this IntN by the specified and returns the quotient.
              * @param {!IntN|number|string} other Other number
              * @returns {!IntN}
              * @expose
@@ -771,7 +792,7 @@
             };
 
             /**
-             * Returns the remainder of the division of this IntN by the specified.
+             * Divides this IntN by the specified and returns the remainder.
              * @param {!IntN|number|string} other Other number
              * @returns {!IntN}
              * @expose
@@ -856,7 +877,7 @@
                     val = chars.indexOf(ch);
                     if (val < 0 || val > radix)
                         throw Error("illegal interior character: "+ch);
-                    result = result.add(IntN.fromInt(val).multiply(IntN.fromInt(radixToPower(i))));
+                    result = IntN.add(result, IntN.multiply(IntN.fromInt(val), IntN.fromInt(radixToPower(i))));
                 }
                 return result;
             };
@@ -878,7 +899,7 @@
                 if (this.isNegative()) {
                     if (this.equals(IntN.MIN_VALUE)) { // -MIN_VALUE = MIN_VALUE
                         var div = IntN.divide(this, radix)['quotient'],
-                            rem = div.multiply(radix).subtract(this);
+                            rem = IntN.add(IntN.multiply(div, radix), this.negate());
                         return div.toString(radix) + rem.toInt().toString(radix.toInt());
                     }
                     return '-'+this.negate().toString(radix);
@@ -888,7 +909,7 @@
                     digits = [],
                     mod;
                 do
-                    mod = result.modulo(radix),
+                    mod = IntN.divide(result, radix)['remainder'],
                     digits.unshift(chars.charAt(mod.toInt())),
                     result = IntN.divide(result, radix)['quotient'];
                 while (!result.equals(zero));
@@ -898,9 +919,14 @@
             // Setup aliases
             IntN['isInt'+nBits] = IntN.isIntN;
             for (var key in aliases)
-                if (aliases.hasOwnProperty(key))
+                if (aliases.hasOwnProperty(key)) {
                     for (i=0; i<aliases[key].length; ++i)
-                        IntN.prototype[aliases[key][i]] = IntN.prototype[key];
+                        if (IntN[key])
+                            IntN[aliases[key][i]] = IntN[key];
+                    for (i=0; i<aliases[key].length; ++i)
+                        if (IntN.prototype[key])
+                            IntN.prototype[aliases[key][i]] = IntN.prototype[key];
+                }
 
             return classes[nBits] = IntN;
 

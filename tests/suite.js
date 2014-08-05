@@ -641,7 +641,7 @@ var suite = {
             runCases("divide", test);
             test.done();
         }
-    },
+    }
     
     /* "analysis": {
         
