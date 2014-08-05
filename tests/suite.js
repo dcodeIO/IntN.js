@@ -376,6 +376,8 @@ var suite = {
                     test.strictEqual(Int32.fromInt(v).toString(r), s);
                 });
             });
+            // If not handled properly, this would result in an infinite loop:
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.toString(10), "4294967295");
             test.done();
         }
         

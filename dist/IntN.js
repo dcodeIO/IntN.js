@@ -434,7 +434,7 @@
                 unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
                 var retainMsb = this.isNegative(),
                     val = retainMsb ? this.not() : this;
-                for (var i=0, result=0; i<Math.min(4, val.bytes.length); ++i)
+                for (var i=0, k=Math.min(4, val.bytes.length), result=0; i<k; ++i)
                     result |= val.bytes[i] << (i*8);
                 if (retainMsb)
                     result = ~result;
@@ -467,9 +467,9 @@
              * @expose
              */
             IntN.prototype.toInts = function() {
-                var numChunks = Math.ceil(nBytes/4),
-                    arr = new Array(numChunks);
-                for (var i=0, offset=0, val; i<numChunks; offset=++i*4) {
+                var numInts = Math.ceil(nBytes/4),
+                    arr = new Array(numInts);
+                for (var i=0, offset=0, val; i<numInts; offset=++i*4) {
                     val = 0;
                     for (var j=0, l=Math.min(4, nBytes-offset); j<l; ++j)
                         val |= this.bytes[offset+j] << (j*8);
@@ -481,10 +481,14 @@
             // Number conversion
 
             /**
-             * Constructs an IntN from a number (double, 52 bit mantissa) value.
+             * Constructs an IntN from a number (double, 52 bit mantissa) value. This differs from {@link IntN.fromInt} in
+             *  using arithmetic operations on numbers instead of logical operations on 32 bit integers, which works
+             *  reliably up to a maximum positive or negative value of 2^53-1.
              * @param {number} value Number value
              * @param {boolean=} unsigned Whether unsigned or not, defaults `false` for signed
              * @returns {!IntN}
+             * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
+             * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
              * @expose
              */
             IntN.fromNumber = function(value, unsigned) {
@@ -502,8 +506,12 @@
             };
 
             /**
-             * Converts this IntN to a number (double, 52 bit mantissa) value.
+             * Converts this IntN to a number (double, 52 bit mantissa) value. This differs from {@link IntN#toInt} in using
+             *  arithmetic operations on numbers instead of logical operations on 32 bit integers, which works reliably up
+             *  to a maximum positive or negative value of 2^53-1. A maximum of 56 bits is evaluated.
              * @returns {number}
+             * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
+             * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
              * @expose
              */
             IntN.prototype.toNumber = function() {
@@ -756,13 +764,22 @@
             IntN.divide = function(dividend, divisor) {
                 if (divisor.isZero())
                     throw Error("division by zero");
+                if (dividend.equals(IntN.MAX_UNSIGNED_VALUE)) {
+                    // FIXME: This works fine but there must be a better solution to handle this case.
+                    var IntM = makeIntN(nBits+8),
+                        divmod = IntM.divide(dividend.cast(IntM), divisor.cast(IntM));
+                    return {
+                        "quotient": divmod['quotient'].cast(IntN),
+                        "remainder": divmod['remainder'].cast(IntN)
+                    };
+                }
                 // See comment in #add above
                 var isNegative = dividend.isNegative() !== divisor.isNegative(),
                     quotient = dividend.unsigned ? IntN.UZERO : IntN.ZERO,
                     remainder = dividend.absolute(),
                     product = divisor.absolute(),
                     term = IntN.UONE,
-                    maxTerm = IntN.MIN_VALUE.toUnsigned();
+                    maxTerm = IntN.MAX_UNSIGNED_VALUE;
                 while (term.lessThan(maxTerm) && product.lessThan(remainder))
                     product = product.shiftLeft(1),
                     term = term.shiftLeft(1);
@@ -907,12 +924,12 @@
                 // now always gt 0:
                 var result = this,
                     digits = [],
-                    mod;
-                do
-                    mod = IntN.divide(result, radix)['remainder'],
-                    digits.unshift(chars.charAt(mod.toInt())),
+                    divmod;
+                do {
+                    divmod = IntN.divide(result, radix);
+                    digits.unshift(chars.charAt(divmod['remainder'].toInt()));
                     result = IntN.divide(result, radix)['quotient'];
-                while (!result.equals(zero));
+                } while (!result.equals(zero));
                 return digits.join('');
             };
 
