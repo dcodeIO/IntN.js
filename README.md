@@ -35,7 +35,7 @@ Constructs a new IntN, where N is the number of bits represented by this class.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| bytes           | *!Array.&lt;number&gt;* | Byte values, least significant first 
+| bytes           | *!Array.&lt;number&gt; &#124; number* | Byte values, least significant first 
 | unsigned        | *boolean*       | Whether unsigned or signed, defaults to `false` for signed 
 
 ---
@@ -148,6 +148,16 @@ Constructs an IntN from a 32bit integer value.
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | value           | *number*        | Integer value 
+| unsigned        | *boolean*       | Whether unsigned or not, defaults to `false` for signed 
+| **@returns**    | *!IntN*         | 
+
+#### IntN.fromInts(ints, unsigned=)
+
+Reassembles an IntN from an array of 32bit integers, least significant first.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| ints            | *!Array.&lt;number&gt;* | Array of 32bit integers 
 | unsigned        | *boolean*       | Whether unsigned or not, defaults to `false` for signed 
 | **@returns**    | *!IntN*         | 
 
@@ -466,12 +476,20 @@ testing and debugging, followed by the character `U` if unsigned.
 
 #### IntN#toInt(unsigned=)
 
-Converts this IntN to a 32bit integer value.
+Converts this IntN to a 32bit integer.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | unsigned        | *boolean*       | Whether unsigned or not, defaults to this' [IntN#unsigned](#intnunsigned) 
 | **@returns**    | *number*        | 
+
+#### IntN#toInts()
+
+Disassembles this IntN into an array of 32bit integers, least significant first.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| **@returns**    | *!Array.&lt;number&gt;* | 
 
 #### IntN#toNumber()
 

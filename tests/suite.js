@@ -305,6 +305,24 @@ var suite = {
             test.strictEqual(Int32.MAX_UNSIGNED_VALUE.toInt(), 0xffffffff);
             test.done();
         },
+               
+        "toInts/fromInts": function(test) {
+            var ints = Int32.MAX_VALUE.toInts();
+            test.strictEqual(ints.length, 1);
+            test.deepEqual(ints, [0x7fffffff]);
+            test.deepEqual(Int32.fromInts(ints), Int32.MAX_VALUE);
+            var Int48 = IntN(48);
+            ints = Int48.MAX_VALUE.toInts();
+            test.strictEqual(ints.length, 2);
+            test.deepEqual(ints, [0xffffffff|0, 0x7fff]);
+            test.deepEqual(Int48.fromInts(ints), Int48.MAX_VALUE);
+            var Int64 = IntN(64);
+            ints = Int64.MAX_VALUE.toInts();
+            test.strictEqual(ints.length, 2);
+            test.deepEqual(ints, [0xffffffff|0, 0x7fffffff]);
+            test.deepEqual(Int64.fromInts(ints), Int64.MAX_VALUE);
+            test.done();
+        },
         
         // Number conversion
         
