@@ -36,12 +36,14 @@ var IntN = require("../dist/IntN.min.js"),
     defaultRadix = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
 
 for (var i=0; i<1000; ++i)
-    defaultCases.push([(Math.random()*0xffffffff)|0, (Math.random()*0xffffffff)|0]);
+    defaultCases.push([(Math.random()*0xffffffff)|0, (Math.random()*0xffffffff)|0]),
+    defaultCases.push([(Math.random()*0xffffffff)>>>0, (Math.random()*0xffffffff)>>>0, true]);
 
 function runCases(method, test, cases) {
     cases = cases || defaultCases;
     cases.forEach(function(c, i) {
-        var n = 1;
+        var n = 1,
+            unsigned = !!c[2];
         try {
             var res, rev;
             switch (method) {
@@ -70,16 +72,31 @@ function runCases(method, test, cases) {
                     rev = c[1] >= c[0];
                     break;
                 case 'add':
-                    res = (c[0] + c[1])|0;
-                    rev = (c[1] + c[0])|0;
+                    if (unsigned) {
+                        res = (c[0] + c[1])>>>0;
+                        rev = (c[1] + c[0])>>>0;
+                    } else {
+                        res = (c[0] + c[1])|0;
+                        rev = (c[1] + c[0])|0;
+                    }
                     break;
                 case 'negate':
-                    res = -c[0];
-                    rev = -c[1];
+                    if (unsigned) {
+                        res = (-c[0])>>>0;
+                        rev = (-c[1])>>>0;
+                    } else {
+                        res = -c[0];
+                        rev = -c[1];
+                    }
                     break;
                 case 'subtract':
-                    res = (c[0] - c[1])|0;
-                    rev = (c[1] - c[0])|0;
+                    if (unsigned) {
+                        res = (c[0] - c[1])>>>0;
+                        rev = (c[1] - c[0])>>>0;
+                    } else {
+                        res = (c[0] - c[1])|0;
+                        rev = (c[1] - c[0])|0;
+                    }
                     break;
                 case 'absolute':
                     res = Math.abs(c[0]);
@@ -90,56 +107,103 @@ function runCases(method, test, cases) {
                     rev = c[1] === c[0] ? 0 : (c[1] < c[0] ? -1 : 1);
                     break;
                 case 'multiply':
-                    res = (c[0] * c[1])|0;
-                    rev = (c[1] * c[0])|0;
+                    if (unsigned) {
+                        res = (c[0] * c[1])>>>0;
+                        rev = (c[1] * c[0])>>>0;
+                    } else {
+                        res = (c[0] * c[1])|0;
+                        rev = (c[1] * c[0])|0;
+                    }
                     break;
                 case 'divide':
-                    res = c[1] === 0 ? null : (c[0] / c[1])|0;
-                    rev = c[0] === 0 ? null : (c[1] / c[0])|0;
+                    if (unsigned) {
+                        res = c[1] === 0 ? null : (c[0] / c[1])>>>0;
+                        rev = c[0] === 0 ? null : (c[1] / c[0])>>>0;
+                    } else {
+                        res = c[1] === 0 ? null : (c[0] / c[1])|0;
+                        rev = c[0] === 0 ? null : (c[1] / c[0])|0;
+                    }
                     break;
                 case 'modulo':
-                    res = c[1] === 0 ? null : (c[0] % c[1])|0;
-                    rev = c[0] === 0 ? null : (c[1] % c[0])|0;
+                    if (unsigned) {
+                        res = c[1] === 0 ? null : (c[0] % c[1])>>>0;
+                        rev = c[0] === 0 ? null : (c[1] % c[0])>>>0;
+                    } else {
+                        res = c[1] === 0 ? null : (c[0] % c[1])|0;
+                        rev = c[0] === 0 ? null : (c[1] % c[0])|0;
+                    }
                     break;
                 case 'not':
-                    res = ~c[0];
-                    rev = ~c[1];
+                    if (unsigned) {
+                        res = (~c[0])>>>0;
+                        rev = (~c[1])>>>0;
+                    } else {
+                        res = (~c[0])|0;
+                        rev = (~c[1])|0;
+                    }
                     break;
                 case 'and':
-                    res = c[0] & c[1];
-                    rev = c[1] & c[0];
+                    if (unsigned) {
+                        res = (c[0] & c[1])>>>0;
+                        rev = (c[1] & c[0])>>>0;
+                    } else {
+                        res = (c[0] & c[1])|0;
+                        rev = (c[1] & c[0])|0;
+                    }
                     break;
                 case 'or':
-                    res = c[0] | c[1];
-                    rev = c[1] | c[0];
+                    if (unsigned) {
+                        res = (c[0] | c[1])>>>0;
+                        rev = (c[1] | c[0])>>>0;                       
+                    } else {
+                        res = (c[0] | c[1])|0;
+                        rev = (c[1] | c[0])|0;
+                    }
                     break;
                 case 'xor':
-                    res = c[0] ^ c[1];
-                    rev = c[1] ^ c[0];
+                    if (unsigned) {
+                        res = (c[0] ^ c[1])>>>0;
+                        rev = (c[1] ^ c[0])>>>0;
+                    } else {
+                        res = (c[0] ^ c[1])|0;
+                        rev = (c[1] ^ c[0])|0;
+                    }
                     break;
                 case 'shiftLeft':
-                    res = c[0] << c[1];
+                    if (unsigned) {
+                        res = (c[0] << c[1])>>>0;                       
+                    } else {
+                        res = (c[0] << c[1])|0;
+                    }
                     rev = null;
                     break;
                 case 'shiftRight':
-                    res = c[0] >> c[1];
+                    if (unsigned) {
+                        res = (c[0] >> c[1])>>>0;
+                    } else {
+                        res = (c[0] >> c[1])|0;
+                    }
                     rev = null;
                     break;
                 case 'shiftRightUnsigned':
-                    res = c[0] >>> c[1];
+                    if (unsigned) {
+                        res = (c[0] >>> c[1])>>>0;                       
+                    } else {
+                        res = (c[0] >>> c[1])|0;
+                    }
                     rev = null;
                     break;
                 default:
                     throw Error('missing standard javascript comparison for: '+method);
             }
-            var a = Int32.fromInt(c[0], c[0] > 0x7fffffff),
-                b = Int32.fromInt(c[1], c[1] > 0x7fffffff);
+            var a = Int32.fromInt(c[0], unsigned),
+                b = Int32.fromInt(c[1], unsigned);
             if (res !== null) {
                 var f1 = a[method](b);
                 if (typeof f1 === 'boolean' || typeof f1 === 'number')
                     test.strictEqual(f1, res);
                 else
-                    test.deepEqual(f1.bytes, Int32.fromInt(res).bytes);
+                    test.deepEqual(f1.bytes, Int32.fromInt(res, unsigned).bytes);
                 ++n;
             }
             if (rev !== null) {
@@ -147,10 +211,10 @@ function runCases(method, test, cases) {
                 if (typeof f2 === 'boolean' || typeof f2 === 'number')
                     test.strictEqual(f2, rev);
                 else
-                    test.deepEqual(f2.bytes, Int32.fromInt(rev, rev > 0x7fffffff).bytes);
+                    test.deepEqual(f2.bytes, Int32.fromInt(rev, unsigned).bytes);
             }
         } catch (e) {
-            e.message += " (case "+(i+1)+"."+n+": "+c[0]+" "+method+" "+c[1]+" ^= "+res+")";
+            e.message += " (case "+(i+1)+"."+n+": "+c[0]+" "+method+" "+c[1]+" ^= "+res+""+(unsigned ? ", unsigned" : "")+")";
             // console.log(a.toDebug(true)+" "+method+" "+ b.toDebug(true));
             throw e;
         }

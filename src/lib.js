@@ -791,7 +791,6 @@ var IntN = (function() {
         IntN.prototype.divide = function(other) {
             if (!IntN.isIntN(other))
                 other = IntN.valueOf(other);
-            
             return IntN.divide(this, other)['quotient'];
         };
 
