@@ -41,7 +41,7 @@ var IntN = require("../dist/IntN.min.js"),
     defaultValues = [0, 1, -1, 10, 100, 255, 256, -255, imin, imax],
     defaultRadix = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
 
-for (var i=0; i<1000; ++i)
+for (var i=0; i<500; ++i)
     defaultCases.push([(Math.random()*0xffffffff)|0, (Math.random()*0xffffffff)|0]),
     defaultCases.push([(Math.random()*0xffffffff)>>>0, (Math.random()*0xffffffff)>>>0, true]);
 
@@ -578,9 +578,10 @@ var suite = {
         },
         
         "isSet": function(test) {
-            test.strictEqual(Int32.prototype.is, Int32.prototype.isSet);
             test.strictEqual(Int32.ONE.isSet(0), true);
             test.strictEqual(Int32.ONE.isSet(1), false);
+            test.strictEqual(Int32.NEG_ONE.isSet(31), true);
+            test.strictEqual(Int32.NEG_ONE.isSet(32), false); // oob
             var val = Int32.ONE.shiftLeft(9);
             for (var i=0; i<Int32.BITS; ++i)
                 test.strictEqual(val.isSet(i), i === 9);
@@ -591,11 +592,20 @@ var suite = {
             test.notStrictEqual(Int32.ONE.set(0, false), Int32.ONE);
             test.strictEqual(Int32.ONE.set(0, true), Int32.ONE);
             test.strictEqual(Int32.ONE.set(0, false).toInt(), 0);
+            test.strictEqual(Int32.ZERO.set(32, true), Int32.ZERO); // oob
             for (var i= 0, val; i<Int32.BITS; ++i) {
                 test.strictEqual((val=Int32.ZERO.set(i, true)).toInt(), 1<<i);
                 test.strictEqual(val.set(i, true), val);
                 test.strictEqual(val.set(i, false).toInt(), 0);
             }
+            test.done();
+        },
+        
+        "size": function(test) {
+            test.strictEqual(Int32.ZERO.size(), 0);
+            test.strictEqual(Int32.ONE.size(), 1);
+            test.strictEqual(Int32.MAX_VALUE.size(), 31);
+            test.strictEqual(Int32.MIN_VALUE.size(), 32);
             test.done();
         }
     },

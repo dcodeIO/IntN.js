@@ -105,15 +105,15 @@ Signed zero.
 | **@type**       | *!IntN*         |
 | **@access**     | *public const*  |
 
-#### IntN.add(a, b)
+#### IntN.add(augend, addend)
 
-Adds the specified IntNs and returns the sum. Does not type check arguments.
+Adds the specified IntNs. Does not type check arguments.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| a               | *!IntN*         | 
-| b               | *!IntN*         | 
-| **@returns**    | *!IntN*         | 
+| augend          | *!IntN*         | Augend 
+| addend          | *!IntN*         | Addend 
+| **@returns**    | *!IntN*         | Sum 
 
 #### IntN.divide(dividend, divisor)
 
@@ -122,9 +122,9 @@ not type check arguments.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| dividend        | *!IntN*         | 
-| divisor         | *!IntN*         | 
-| **@returns**    | *!{quotient: !IntN, remainder: !IntN}* | 
+| dividend        | *!IntN*         | Dividend 
+| divisor         | *!IntN*         | Divisor 
+| **@returns**    | *!{quotient: !IntN, remainder: !IntN}* | Quotient and remainder 
 
 #### IntN.fromInt(value, unsigned=)
 
@@ -155,7 +155,7 @@ reliably up to a maximum positive or negative value of 2^53-1.
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | value           | *number*        | Number value 
-| unsigned        | *boolean*       | Whether unsigned or not, defaults `false` for signed 
+| unsigned        | *boolean*       | Whether unsigned or not, defaults to `false` for signed 
 | **@returns**    | *!IntN*         | 
 | **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER 
 | **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER 
@@ -182,15 +182,25 @@ Tests if an object is an N bit integer, where N is this class's number of bits.
 | obj             | ***             | Object to test 
 | **@returns**    | *boolean*       | `true` if it is an N bit integer, otherwise `false` 
 
-#### IntN.multiply(a, b)
+#### IntN.multiply(multiplicand, multiplier)
 
 Multiplies the specified IntNs and returns the product. Does not type check arguments.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| a               | *!IntN*         | 
-| b               | *!IntN*         | 
-| **@returns**    | *!IntN*         | 
+| multiplicand    | *!IntN*         | Multiplicand 
+| multiplier      | *!IntN*         | Multiplier 
+| **@returns**    | *!IntN*         | Product 
+
+#### IntN.subtract(minuend, subtrahend)
+
+Subtracts the second from the first specified IntN. Does not type check arguments.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| minuend         | *!IntN*         | Minuend 
+| subtrahend      | *!IntN*         | Subtrahend 
+| **@returns**    | *!IntN*         | Difference 
 
 #### IntN.valueOf(val)
 
@@ -225,16 +235,16 @@ Returns this IntN's absolute value as an unsigned IntN.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| **@returns**    | *!IntN*         | 
+| **@returns**    | *!IntN*         | Absolute 
 
-#### IntN#add(other)
+#### IntN#add(addend)
 
-Adds the specified to this IntN and returns the sum.
+Adds the specified to this IntN.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| addend          | *!IntN &#124; number &#124; string* | Addend 
+| **@returns**    | *!IntN*         | Sum 
 
 #### IntN#and(other)
 
@@ -264,14 +274,14 @@ Compares this IntN with the specified.
 | other           | *!IntN &#124; number &#124; string* | Other value 
 | **@returns**    | *number*        | `0` if both are the same, `1` if this is greater and `-1` if the specified is greater 
 
-#### IntN#divide(other)
+#### IntN#divide(divisor)
 
 Divides this IntN by the specified and returns the quotient.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| divisor         | *!IntN &#124; number &#124; string* | Divisor 
+| **@returns**    | *!IntN*         | Quotient 
 
 #### IntN#equals(other)
 
@@ -383,31 +393,31 @@ Tests if this IntN is less than or equal (&lt;=) the specified.
 | other           | *!IntN &#124; number &#124; string* | Other value 
 | **@returns**    | *boolean*       | 
 
-#### IntN#modulo(other)
+#### IntN#modulo(divisor)
 
 Divides this IntN by the specified and returns the remainder.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| divisor         | *!IntN &#124; number &#124; string* | Divisor 
+| **@returns**    | *!IntN*         | Remainder 
 
-#### IntN#multiply(other)
+#### IntN#multiply(multiplier)
 
 Multiplies this IntN with the specified and returns the product.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| multiplier      | *!IntN &#124; number &#124; string* | Multiplier 
+| **@returns**    | *!IntN*         | Product 
 
 #### IntN#negate()
 
-Negates this IntN (*-1) and returns the result.
+Negates this IntN (*-1).
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| **@returns**    | *!IntN*         | 
+| **@returns**    | *!IntN*         | Negation 
 
 #### IntN#not()
 
@@ -472,25 +482,33 @@ Performs an unsigned shift right (&gt;&gt;&gt;) operation and returns the result
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | numBits         | *!IntN &#124; number* | Number of bits 
-| **@returns**    | *!IntN*         | 
+| **@returns**    | *!IntN*         | Shifted 
 
-#### IntN#subtract(other)
+#### IntN#size()
+
+Returns the number of bits required to fully represent this IntN's value.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| **@returns**    | *number*        | Shift of the most significant bit (0 to N) 
+
+#### IntN#subtract(subtrahend)
 
 Subtracts the specified from this IntN and returns the difference.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| other           | *!IntN &#124; number &#124; string* | Other number 
-| **@returns**    | *!IntN*         | 
+| subtrahend      | *!IntN &#124; number &#124; string* | Subtrahend 
+| **@returns**    | *!IntN*         | Difference 
 
-#### IntN#toDebug(spaces=)
+#### IntN#toDebug(addSpaces=)
 
 Converts this IntN to its full binary representation. This returns N (number of bits) binary digits for
 testing and debugging, followed by the character `U` if unsigned.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
-| spaces          | *boolean*       | Whether to insert spaces between bytes, defaults to `false` 
+| addSpaces       | *boolean*       | Whether to insert spaces between bytes, defaults to `false` 
 | **@returns**    | *string*        | 
 
 #### IntN#toInt(unsigned=)

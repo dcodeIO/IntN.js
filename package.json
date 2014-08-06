@@ -1,6 +1,6 @@
 {
     "name": "intn",
-    "version": "0.12.0",
+    "version": "0.13.0",
     "author": "Daniel Wirtz <dcode@dcode.io>",
     "description": "A library for representing and working with arbitrary byte size two's complement integers, signed and unsigned.",
     "main": "index.js",

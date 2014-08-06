@@ -485,7 +485,7 @@
              *  using arithmetic operations on numbers instead of logical operations on 32 bit integers, which works
              *  reliably up to a maximum positive or negative value of 2^53-1.
              * @param {number} value Number value
-             * @param {boolean=} unsigned Whether unsigned or not, defaults `false` for signed
+             * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
              * @returns {!IntN}
              * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
              * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
@@ -626,7 +626,7 @@
                 if (!logical && (this.bytes[maxIndex] & 0x80) === 0x80) {
                     var k; for (i=nBytes-1, k=nBytes-numBytes-1; i>=k; --i)
                         bytes[i] = 0xff;
-                    bytes[++i /* !k */] = (bytes[i] << (7-numBits)) & 0xff;
+                    bytes[++i] = (bytes[i] << (7-numBits)) & 0xff;
                 }
                 var idx;
                 for (i=0; i<nBytes; ++i) {
@@ -641,7 +641,7 @@
             /**
              * Performs an unsigned shift right (&gt;&gt;&gt;) operation and returns the result.
              * @param {!IntN|number} numBits Number of bits
-             * @returns {!IntN}
+             * @returns {!IntN} Shifted
              * @expose
              */
             IntN.prototype.shiftRightUnsigned = function(numBits) {
@@ -667,7 +667,7 @@
              * @expose
              */
             IntN.prototype.set = function(i, isSet) {
-                if (this.isSet(i) == isSet)
+                if (i >= nBits || this.isSet(i) == isSet)
                     return this;
                 var bytes = this.bytes.slice();
                 if (isSet)
@@ -677,21 +677,34 @@
                 return new IntN(bytes, this.unsigned);
             };
 
+            /**
+             * Returns the number of bits required to fully represent this IntN's value.
+             * @returns {number} Shift of the most significant bit (0 to N)
+             * @expose
+             */
+            IntN.prototype.size = function() {
+                for (var i=maxIndex, byt, j=1; i>=0; --i)
+                    if ((byt = this.bytes[i]) !== 0) {
+                        while (byt >>= 1)
+                            j++;
+                        return i*8 + j;
+                    }
+                return 0;
+            };
+
             // Arithmetic operations
 
             /**
-             * Adds the specified IntNs and returns the sum. Does not type check arguments.
-             * @param {!IntN} a
-             * @param {!IntN} b
-             * @returns {!IntN}
+             * Adds the specified IntNs. Does not type check arguments.
+             * @param {!IntN} augend Augend
+             * @param {!IntN} addend Addend
+             * @returns {!IntN} Sum
              * @expose
              */
-            IntN.add = function(a, b) {
-                var carry = a.and(b),
-                    result = a.xor(b),
+            IntN.add = function(augend, addend) {
+                var carry = augend.and(addend),
+                    result = augend.xor(addend),
                     carryPwr2;
-                // There seem to be no performance benefits testing against == 0 or == 1 (test probably too costly in avg).
-                // Thus, such optimization should be implemented by the user explicitly where these cases are likely.
                 while (!carry.isZero())
                     carryPwr2 = carry.shiftLeft(1),
                     carry = result.and(carryPwr2),
@@ -700,20 +713,20 @@
             };
 
             /**
-             * Adds the specified to this IntN and returns the sum.
-             * @param {!IntN|number|string} other Other number
-             * @returns {!IntN}
+             * Adds the specified to this IntN.
+             * @param {!IntN|number|string} addend Addend
+             * @returns {!IntN} Sum
              * @expose
              */
-            IntN.prototype.add = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                return IntN.add(this, other);
+            IntN.prototype.add = function(addend) {
+                if (!IntN.isIntN(addend))
+                    addend = IntN.valueOf(addend);
+                return IntN.add(this, addend);
             };
 
             /**
-             * Negates this IntN (*-1) and returns the result.
-             * @returns {!IntN}
+             * Negates this IntN (*-1).
+             * @returns {!IntN} Negation
              * @expose
              */
             IntN.prototype.negate = function() {
@@ -729,20 +742,31 @@
             IntN.NEG_ONE = IntN.ONE.negate();
 
             /**
-             * Subtracts the specified from this IntN and returns the difference.
-             * @param {!IntN|number|string} other Other number
-             * @returns {!IntN}
+             * Subtracts the second from the first specified IntN. Does not type check arguments.
+             * @param {!IntN} minuend Minuend
+             * @param {!IntN} subtrahend Subtrahend
+             * @returns {!IntN} Difference
              * @expose
              */
-            IntN.prototype.subtract = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                return IntN.add(this, other.negate());
+            IntN.subtract = function(minuend, subtrahend) {
+                return IntN.add(minuend, subtrahend.negate());
+            };
+
+            /**
+             * Subtracts the specified from this IntN and returns the difference.
+             * @param {!IntN|number|string} subtrahend Subtrahend
+             * @returns {!IntN} Difference
+             * @expose
+             */
+            IntN.prototype.subtract = function(subtrahend) {
+                if (!IntN.isIntN(subtrahend))
+                    subtrahend = IntN.valueOf(subtrahend);
+                return IntN.subtract(this, subtrahend);
             };
 
             /**
              * Returns this IntN's absolute value as an unsigned IntN.
-             * @returns {!IntN}
+             * @returns {!IntN} Absolute
              * @expose
              */
             IntN.prototype.absolute = function() {
@@ -753,41 +777,45 @@
 
             /**
              * Multiplies the specified IntNs and returns the product. Does not type check arguments.
-             * @param {!IntN} a
-             * @param {!IntN} b
-             * @returns {!IntN}
+             * @param {!IntN} multiplicand Multiplicand
+             * @param {!IntN} multiplier Multiplier
+             * @returns {!IntN} Product
              * @expose
              */
-            IntN.multiply = function(a, b) {
-                // See comment in add above
-                var isNegative = a.isNegative() !== b.isNegative(),
-                    result = a.unsigned ? IntN.UZERO : IntN.ZERO;
-                a = a.absolute();
-                b = b.absolute();
-                for(;!b.isZero(); a=a.shiftLeft(1), b=b.shiftRight(1, true))
-                    if ((b.bytes[0] & 1) === 1)
-                        result = IntN.add(result, a);
-                return isNegative ? result.negate() : result;
+            IntN.multiply = function(multiplicand, multiplier) {
+                var result = multiplicand.unsigned ? IntN.UZERO : IntN.ZERO;
+                var m = multiplicand.absolute(),
+                    n = multiplier.absolute();
+                while (!n.isZero()) {
+                    if ((n.bytes[0] & 1) === 1)
+                        result = IntN.add(result, m);
+                    m = m.shiftLeft(1);
+                    n = n.shiftRight(1, true);
+                }
+                if (!multiplicand.unsigned)
+                    if (multiplicand.isNegative() !== multiplier.isNegative())
+                        result = result.negate();
+                return result;
             };
 
             /**
              * Multiplies this IntN with the specified and returns the product.
-             * @param {!IntN|number|string} other Other number
-             * @returns {!IntN}
+             * @param {!IntN|number|string} multiplier Multiplier
+             * @returns {!IntN} Product
              * @expose
              */
-            IntN.prototype.multiply = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                return IntN.multiply(this, other);
+            IntN.prototype.multiply = function(multiplier) {
+                if (!IntN.isIntN(multiplier))
+                    multiplier = IntN.valueOf(multiplier);
+                return IntN.multiply(this, multiplier);
             };
 
             /**
              * Divides the specified dividend by the specified divisor and returns both the quotient and the remainder. Does
              *  not type check arguments.
-             * @param {!IntN} dividend
-             * @param {!IntN} divisor
-             * @returns {!{quotient: !IntN, remainder: !IntN}}
+             * @param {!IntN} dividend Dividend
+             * @param {!IntN} divisor Divisor
+             * @returns {!{quotient: !IntN, remainder: !IntN}} Quotient and remainder
              * @expose
              */
             IntN.divide = function(dividend, divisor) {
@@ -795,87 +823,73 @@
                     throw Error("division by zero");
                 if (dividend.unsigned)
                     divisor = divisor.toUnsigned();
-                if (dividend.unsigned && dividend.greaterThan(IntN.MAX_VALUE)) {
-                    // Ensure correct results for large unsigned values. TODO: Is there a better way?
-                    var IntM = makeIntN(nBits+8), // constructed when requested, then reused
-                        divmod = IntM.divide(dividend.cast(IntM), divisor.cast(IntM));
-                    return {
-                        "quotient": divmod['quotient'].cast(IntN),
-                        "remainder": divmod['remainder'].cast(IntN)
-                    };
+                var n = dividend.absolute(),
+                    d = divisor.absolute(),
+                    q = IntN.UZERO,
+                    r = IntN.UZERO;
+                for (var i=n.size()-1; i>=0; --i) {
+                    r = r.shiftLeft(1);
+                    r = r.set(0, n.isSet(i));
+                    if (r.greaterThanEqual(d))
+                        r = IntN.add(r, d.negate()),
+                        q = q.set(i, true);
                 }
-                var isNegative = dividend.isNegative() !== divisor.isNegative(),
-                    quotient = IntN.UZERO,
-                    remainder = dividend.absolute(),
-                    product = divisor.absolute(),
-                    term = IntN.UONE,
-                    termMsb = 1;
-                while (termMsb < nBits && product.lessThan(remainder))
-                    product = product.shiftLeft(1),
-                    ++termMsb;
-                term = term.shiftLeft(termMsb-1);
-                while (term.greaterThanEqual(IntN.UONE)) {
-                    if (product.lessThanEqual(remainder))
-                        quotient = IntN.add(quotient, term),
-                        remainder = IntN.add(remainder, product.negate());
-                    product = product.shiftRight(1, true);
-                    term = term.shiftRight(1, true);
+                if (!dividend.unsigned) {
+                    q = q.toSigned();
+                    r = r.toSigned();
+                    if (dividend.isNegative() !== divisor.isNegative())
+                        q = q.negate();
+                    if (dividend.isNegative())
+                        r = r.negate();
                 }
-                if (!dividend.unsigned)
-                    quotient = quotient.toSigned(),
-                    remainder = remainder.toSigned();
-                if (isNegative)
-                    quotient = quotient.negate();
-                if (dividend.isNegative() || (quotient.isNegative() !== divisor.isNegative() && !quotient.isZero()))
-                    remainder = remainder.negate(); // remainder = dividend - quotient*divisor
                 return {
-                    "quotient": quotient,
-                    "remainder": remainder
+                    "quotient": q,
+                    "remainder": r
                 };
             };
 
             /**
              * Divides this IntN by the specified and returns the quotient.
-             * @param {!IntN|number|string} other Other number
-             * @returns {!IntN}
+             * @param {!IntN|number|string} divisor Divisor
+             * @returns {!IntN} Quotient
              * @expose
              */
-            IntN.prototype.divide = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                return IntN.divide(this, other)['quotient'];
+            IntN.prototype.divide = function(divisor) {
+                if (!IntN.isIntN(divisor))
+                    divisor = IntN.valueOf(divisor);
+                return IntN.divide(this, divisor)['quotient'];
             };
 
             /**
              * Divides this IntN by the specified and returns the remainder.
-             * @param {!IntN|number|string} other Other number
-             * @returns {!IntN}
+             * @param {!IntN|number|string} divisor Divisor
+             * @returns {!IntN} Remainder
              * @expose
              */
-            IntN.prototype.modulo = function(other) {
-                if (!IntN.isIntN(other))
-                    other = IntN.valueOf(other);
-                return IntN.divide(this, other)['remainder'];
+            IntN.prototype.modulo = function(divisor) {
+                if (!IntN.isIntN(divisor))
+                    divisor = IntN.valueOf(divisor);
+                return IntN.divide(this, divisor)['remainder'];
             };
 
             /**
              * Converts this IntN to its full binary representation. This returns N (number of bits) binary digits for
              *  testing and debugging, followed by the character `U` if unsigned.
-             * @param {boolean=} spaces Whether to insert spaces between bytes, defaults to `false`
+             * @param {boolean=} addSpaces Whether to insert spaces between bytes, defaults to `false`
              * @returns {string}
              * @expose
              */
-            IntN.prototype.toDebug = function(spaces) {
+            IntN.prototype.toDebug = function(addSpaces) {
                 for (var i=maxIndex, byt, out=""; i>=0; --i) {
                     byt = this.bytes[i].toString(2);
                     while (byt.length < 8)
                         byt = '0'+byt;
                     out += byt;
-                    if (spaces && i > 0)
+                    if (addSpaces && i > 0)
                         out += ' ';
                 }
                 if (this.unsigned)
-                    out += spaces ? " U" : 'U';
+                    out += addSpaces ? " U" : 'U';
                 return out;
             };
 
@@ -960,7 +974,7 @@
                     return '-'+this.negate().toString(radix);
                 }
                 // now always gt 0:
-                var result = this,
+                var result = this.toUnsigned(),
                     digits = [],
                     divmod;
                 do {
@@ -1049,7 +1063,6 @@
             'shiftLeft': ['lsh', 'leftShift', '<<'],
             'shiftRight': ['rsh', 'rightShift', '>>'],
             'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
-            'isSet': ['is'],
             // Arithmetic operations
             'add': ['plus', '+'],
             'negate': ['neg', '!'],
