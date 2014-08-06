@@ -148,13 +148,17 @@ Reassembles an IntN from an array of 32 bit integers, least significant first.
 
 #### IntN.fromNumber(value, unsigned=)
 
-Constructs an IntN from a number (double, 52 bit mantissa) value.
+Constructs an IntN from a number (double, 52 bit mantissa) value. This differs from [IntN.fromInt](#intnfromintvalue-unsigned) in
+using arithmetic operations on numbers instead of logical operations on 32 bit integers, which works
+reliably up to a maximum positive or negative value of 2^53-1.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | value           | *number*        | Number value 
 | unsigned        | *boolean*       | Whether unsigned or not, defaults `false` for signed 
 | **@returns**    | *!IntN*         | 
+| **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER 
+| **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER 
 
 #### IntN.fromString(value, unsigned=, radix=)
 
@@ -328,6 +332,15 @@ Tests if this IntN is (unsigned or) positive.
 |-----------------|-----------------|---------------
 | **@returns**    | *boolean*       | 
 
+#### IntN#isSet(i)
+
+Evaluates the bit at the specified position. Using this method is usually much faster than alternative ways.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| i               | *number*        | Position (0 to (N-1)) 
+| **@returns**    | *boolean*       | `true` if the bit is 1, `false` if it is 0 
+
 #### IntN#isSigned()
 
 Tests if this IntN is signed.
@@ -422,6 +435,17 @@ Performs a bitwise or (&#124;) operation and returns the resulting Int.
 | other           | *!IntN &#124; number &#124; string* | Other number 
 | **@returns**    | *!IntN*         | 
 
+#### IntN#set(i, isSet)
+
+Sets the bit at the specified position and returns the result. Using this method is usually much faster than
+alternative ways.
+
+| Parameter       | Type            | Description
+|-----------------|-----------------|---------------
+| i               | *number*        | Position (0 to (N-1)) 
+| isSet           | *boolean*       | `true` to set the bit to 1, `false` to set it to 0 
+| **@returns**    | *!IntN*         | 
+
 #### IntN#shiftLeft(numBits)
 
 Performs a shift left (&lt;&lt;) operation and returns the result.
@@ -488,11 +512,15 @@ Disassembles this IntN into an array of 32 bit integers, least significant first
 
 #### IntN#toNumber()
 
-Converts this IntN to a number (double, 52 bit mantissa) value.
+Converts this IntN to a number (double, 52 bit mantissa) value. This differs from [IntN#toInt](#intntointunsigned) in using
+arithmetic operations on numbers instead of logical operations on 32 bit integers, which works reliably up
+to a maximum positive or negative value of 2^53-1. A maximum of 56 bits is evaluated.
 
 | Parameter       | Type            | Description
 |-----------------|-----------------|---------------
 | **@returns**    | *number*        | 
+| **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER 
+| **@see**        |                 | https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER 
 
 #### IntN#toSigned()
 

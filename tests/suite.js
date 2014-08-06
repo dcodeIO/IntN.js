@@ -30,7 +30,13 @@ var IntN = require("../dist/IntN.min.js"),
         /* 22 */ [-256*256, 255*256],
         /* 23 */ [-256*256*256, -255*256*256],
         /* 24 */ [-256*256*256, 255*256*256],
-        /* 25 */ [1, 100]
+        /* 25 */ [1, 100],
+        /* 26 */ [iumax, 0, true],
+        /* 27 */ [iumax, 1, true],
+        /* 28 */ [iumax, (-1)>>>0, true],
+        /* 29 */ [iumax, iumax, true],
+        /* 30 */ [iumax, imax, true],
+        /* 31 */ [iumax, imin>>>0, true]
     ],
     defaultValues = [0, 1, -1, 10, 100, 255, 256, -255, imin, imax],
     defaultRadix = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
@@ -568,6 +574,28 @@ var suite = {
             test.strictEqual(Int32.prototype['>>>'], Int32.prototype.shiftRightUnsigned);
             runCases("shiftRightUnsigned", test, cases);
     
+            test.done();
+        },
+        
+        "isSet": function(test) {
+            test.strictEqual(Int32.prototype.is, Int32.prototype.isSet);
+            test.strictEqual(Int32.ONE.isSet(0), true);
+            test.strictEqual(Int32.ONE.isSet(1), false);
+            var val = Int32.ONE.shiftLeft(9);
+            for (var i=0; i<Int32.BITS; ++i)
+                test.strictEqual(val.isSet(i), i === 9);
+            test.done();
+        },
+        
+        "set": function(test) {
+            test.notStrictEqual(Int32.ONE.set(0, false), Int32.ONE);
+            test.strictEqual(Int32.ONE.set(0, true), Int32.ONE);
+            test.strictEqual(Int32.ONE.set(0, false).toInt(), 0);
+            for (var i= 0, val; i<Int32.BITS; ++i) {
+                test.strictEqual((val=Int32.ZERO.set(i, true)).toInt(), 1<<i);
+                test.strictEqual(val.set(i, true), val);
+                test.strictEqual(val.set(i, false).toInt(), 0);
+            }
             test.done();
         }
     },

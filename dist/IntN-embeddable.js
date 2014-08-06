@@ -630,6 +630,35 @@ var IntN = (function() {
             return this.shiftRight(numBits, true);
         };
 
+        /**
+         * Evaluates the bit at the specified position. Using this method is usually much faster than alternative ways.
+         * @param {number} i Position (0 to (N-1))
+         * @returns {boolean} `true` if the bit is 1, `false` if it is 0
+         * @expose
+         */
+        IntN.prototype.isSet = function(i) {
+            return (this.bytes[(i/8)|0] & (i=1<<(i%8))) === i;
+        };
+
+        /**
+         * Sets the bit at the specified position and returns the result. Using this method is usually much faster than
+         *  alternative ways.
+         * @param {number} i Position (0 to (N-1))
+         * @param {boolean} isSet `true` to set the bit to 1, `false` to set it to 0
+         * @returns {!IntN}
+         * @expose
+         */
+        IntN.prototype.set = function(i, isSet) {
+            if (this.isSet(i) == isSet)
+                return this;
+            var bytes = this.bytes.slice();
+            if (isSet)
+                bytes[(i/8)|0] |= 1<<(i%8);
+            else
+                bytes[(i/8)|0] &= 255 - (1<<(i%8));
+            return new IntN(bytes, this.unsigned);
+        };
+
         // Arithmetic operations
 
         /**
@@ -1002,6 +1031,7 @@ var IntN = (function() {
         'shiftLeft': ['lsh', 'leftShift', '<<'],
         'shiftRight': ['rsh', 'rightShift', '>>'],
         'shiftRightUnsigned': ['rshu', 'rightShiftUnsigned', '>>>'],
+        'isSet': ['is'],
         // Arithmetic operations
         'add': ['plus', '+'],
         'negate': ['neg', '!'],
