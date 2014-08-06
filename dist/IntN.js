@@ -87,7 +87,7 @@
                  */
                 this.bytes = new Array(nBytes);
 
-                for (var i=0, k=bytes.length; i<k; ++i)
+                for (var i=0, k=Math.min(nBytes, bytes.length); i<k; ++i)
                     this.bytes[i] = bytes[i] & 0xff;
                 for (; i<nBytes; ++i)
                     this.bytes[i] = 0;
@@ -764,25 +764,27 @@
             IntN.divide = function(dividend, divisor) {
                 if (divisor.isZero())
                     throw Error("division by zero");
-                if (dividend.equals(IntN.MAX_UNSIGNED_VALUE)) {
-                    // FIXME: This works fine but there must be a better solution to handle this case.
-                    var IntM = makeIntN(nBits+8),
+                if (dividend.unsigned)
+                    divisor = divisor.toUnsigned();
+                if (dividend.unsigned && dividend.greaterThan(IntN.MAX_VALUE)) {
+                    // Ensure correct results for large unsigned values. TODO: Is there a better way?
+                    var IntM = makeIntN(nBits+8), // constructed when requested, then reused
                         divmod = IntM.divide(dividend.cast(IntM), divisor.cast(IntM));
                     return {
                         "quotient": divmod['quotient'].cast(IntN),
                         "remainder": divmod['remainder'].cast(IntN)
                     };
                 }
-                // See comment in #add above
                 var isNegative = dividend.isNegative() !== divisor.isNegative(),
-                    quotient = dividend.unsigned ? IntN.UZERO : IntN.ZERO,
+                    quotient = IntN.UZERO,
                     remainder = dividend.absolute(),
                     product = divisor.absolute(),
                     term = IntN.UONE,
-                    maxTerm = IntN.MAX_UNSIGNED_VALUE;
-                while (term.lessThan(maxTerm) && product.lessThan(remainder))
+                    termMsb = 1;
+                while (termMsb < nBits && product.lessThan(remainder))
                     product = product.shiftLeft(1),
-                    term = term.shiftLeft(1);
+                    ++termMsb;
+                term = term.shiftLeft(termMsb-1);
                 while (term.greaterThanEqual(IntN.UONE)) {
                     if (product.lessThanEqual(remainder))
                         quotient = IntN.add(quotient, term),
@@ -790,8 +792,15 @@
                     product = product.shiftRight(1, true);
                     term = term.shiftRight(1, true);
                 }
+                if (!dividend.unsigned)
+                    quotient = quotient.toSigned(),
+                    remainder = remainder.toSigned();
+                if (isNegative)
+                    quotient = quotient.negate();
+                if (dividend.isNegative() || (quotient.isNegative() !== divisor.isNegative() && !quotient.isZero()))
+                    remainder = remainder.negate(); // remainder = dividend - quotient*divisor
                 return {
-                    "quotient": isNegative ? quotient.negate() : quotient,
+                    "quotient": quotient,
                     "remainder": remainder
                 };
             };
@@ -805,6 +814,7 @@
             IntN.prototype.divide = function(other) {
                 if (!IntN.isIntN(other))
                     other = IntN.valueOf(other);
+
                 return IntN.divide(this, other)['quotient'];
             };
 

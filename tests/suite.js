@@ -33,7 +33,7 @@ var IntN = require("../dist/IntN.min.js"),
         /* 25 */ [1, 100]
     ],
     defaultValues = [0, 1, -1, 10, 100, 255, 256, -255, imin, imax],
-    defaultRadix = [2, 8, 10, 16, 36];
+    defaultRadix = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
 
 for (var i=0; i<1000; ++i)
     defaultCases.push([(Math.random()*0xffffffff)|0, (Math.random()*0xffffffff)|0]);
@@ -98,8 +98,8 @@ function runCases(method, test, cases) {
                     rev = c[0] === 0 ? null : (c[1] / c[0])|0;
                     break;
                 case 'modulo':
-                    res = c[0] % c[1];
-                    rev = c[1] % c[0];
+                    res = c[1] === 0 ? null : (c[0] % c[1])|0;
+                    rev = c[0] === 0 ? null : (c[1] % c[0])|0;
                     break;
                 case 'not':
                     res = ~c[0];
@@ -377,7 +377,10 @@ var suite = {
                 });
             });
             // If not handled properly, this would result in an infinite loop:
+            test.strictEqual(Int32.UZERO.toString(10), "0");
+            test.strictEqual(Int32.UONE.toString(10), "1");
             test.strictEqual(Int32.MAX_UNSIGNED_VALUE.toString(10), "4294967295");
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.subtract(1).toString(10), "4294967294");
             test.done();
         }
         
@@ -526,6 +529,7 @@ var suite = {
             test.deepEqual(Int32.MIN_VALUE.not().add(1), Int32.MIN_VALUE);
             test.deepEqual(Int32.MIN_VALUE.negate(), Int32.MIN_VALUE);
             test.strictEqual(Int32.MAX_VALUE.negate().toDebug(true), "10000000 00000000 00000000 00000001");
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.negate().toDebug(true), "00000000 00000000 00000000 00000001 U");
             
             runCases("negate", test);
             
@@ -628,9 +632,14 @@ var suite = {
             test.deepEqual(Int32.MAX_VALUE.multiply(Int32.MIN_VALUE), Int32.MIN_VALUE);
             test.deepEqual(Int32.MIN_VALUE.multiply(Int32.MAX_VALUE), Int32.MIN_VALUE);
             test.strictEqual(Int32.MAX_VALUE.multiply(Int32.MAX_VALUE).toInt(), 1);
+            // Unsigned edge cases
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.multiply(Int32.ZERO).toInt(), 0);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.multiply(Int32.ONE).toInt(), 4294967295);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.multiply(Int32.MAX_VALUE).toInt(), 2147483649);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.multiply(Int32.MIN_VALUE).toInt(), 2147483648);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.multiply(Int32.MAX_UNSIGNED_VALUE).toInt(), 1);
             // Multiplicating large 32 bit integers may exceed the integer precision of JS doubles (53 bit), so:
-            var cases = defaultCases.filter(function(c) {
-                return (c[0] & 0xfffff) === c[0] || (c[1] & 0xfffff) === c[1]; // One value must be max. 20 bit (32+20=52)
+            var cases = defaultCases.filter(function(c) {                return (c[0] & 0xfffff) === c[0] || (c[1] & 0xfffff) === c[1]; // One value must be max. 20 bit (32+20=52)
             });
             for (var i=0; i<500; ++i)
                 cases.push([(Math.random()*0xffffffff)|0, (Math.random()*0xfffff)|0]);
@@ -641,6 +650,38 @@ var suite = {
         "divide": function(test) {
             test.strictEqual(Int32.prototype.div, Int32.prototype.divide);
             runCases("divide", test);
+            // Unsigned
+            var val = Int32.fromInt(0xfeffffff, true);
+            test.strictEqual(val.divide(Int32.ONE).toInt(), 4278190079);
+            test.strictEqual(val.divide(Int32.NEG_ONE).toInt(), 0);
+            test.strictEqual(val.divide(Int32.MAX_UNSIGNED_VALUE).toInt(), 0);
+            test.strictEqual(val.divide(Int32.MAX_VALUE).toInt(), 1);
+            test.strictEqual(val.divide(Int32.MIN_VALUE).toInt(), 1);
+            // Unsigned edge cases
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.divide(Int32.ONE).toInt(), iumax);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.divide(Int32.NEG_ONE).toInt(), 1);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.divide(Int32.MAX_UNSIGNED_VALUE).toInt(), 1);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.divide(Int32.MAX_VALUE).toInt(), 2);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.divide(Int32.MIN_VALUE).toInt(), 1);
+            test.done();
+        },
+        
+        "modulo": function(test) {
+            test.strictEqual(Int32.prototype.mod, Int32.prototype.modulo);
+            runCases("modulo", test);
+            // Unsigned
+            var val = Int32.fromInt(0xfeffffff, true);
+            test.strictEqual(val.modulo(Int32.ONE).toInt(), 0);
+            test.strictEqual(val.modulo(Int32.NEG_ONE).toInt(), 4278190079);
+            test.strictEqual(val.modulo(Int32.MAX_UNSIGNED_VALUE).toInt(), 4278190079);
+            test.strictEqual(val.modulo(Int32.MAX_VALUE).toInt(), 2130706432);
+            test.strictEqual(val.modulo(Int32.MIN_VALUE).toInt(), 2130706431);
+            // Unsigned edge cases
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.modulo(Int32.ONE).toInt(), 0);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.modulo(Int32.NEG_ONE).toInt(), 0);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.modulo(Int32.MAX_UNSIGNED_VALUE).toInt(), 0);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.modulo(Int32.MAX_VALUE).toInt(), 1);
+            test.strictEqual(Int32.MAX_UNSIGNED_VALUE.modulo(Int32.MIN_VALUE).toInt(), 2147483647);
             test.done();
         }
     }
