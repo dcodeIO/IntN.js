@@ -1,6 +1,6 @@
 {
     "name": "intn",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "author": "Daniel Wirtz <dcode@dcode.io>",
     "description": "A library for representing and working with arbitrary byte size two's complement integers, signed and unsigned.",
     "main": "index.js",
@@ -22,7 +22,7 @@
     },
     "scripts": {
         "test": "node node_modules/testjs/bin/testjs tests/suite.js",
-        "build": "node node_modules/metascript/bin/metascript src/IntN.js >dist/IntN.js && node node_modules/metascript/bin/metascript src/IntN-embeddable.js >dist/IntN-embeddable.js",
+        "build": "node scripts/build.js",
         "compile": "ccjs dist/IntN.js --compilation_level=ADVANCED_OPTIMIZATIONS --create_source_map=dist/IntN.min.map --source_map_format=V3 --externs=externs/minimal-env.js > dist/IntN.min.js",
         "compress": "gzip -c -9 dist/IntN.min.js > dist/IntN.min.js.gz",
         "make": "npm run-script build && npm run-script compile && npm run-script compress && npm test"

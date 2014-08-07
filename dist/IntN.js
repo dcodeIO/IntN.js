@@ -125,8 +125,7 @@
              * @expose
              */
             IntN.isIntN = function(obj) {
-                return (obj && Array.isArray(obj.bytes) && obj.bytes.length === nBytes && typeof obj.unsigned === 'boolean')
-                    === true;
+                return obj instanceof IntN;
             };
 
             /**
@@ -140,7 +139,7 @@
                     return IntN.fromNumber(val);
                 else if (typeof val === 'string')
                     return IntN.fromString(val);
-                else if (val && val instanceof IntN && val.bytes.length === nBytes)
+                else if (IntN.isIntN(val))
                     return val;
                 else if (val && typeof val.low === 'number' && typeof val.high === 'number' && typeof val.unsigned === 'boolean')
                     return IntN.fromInts([val.low, val.high], val.unsigned); // for Long.js v1 compatibility
@@ -673,7 +672,7 @@
                 if (isSet)
                     bytes[(i/8)|0] |= 1<<(i%8);
                 else
-                    bytes[(i/8)|0] &= 255 - (1<<(i%8));
+                    bytes[(i/8)|0] &= 0xff - (1<<(i%8));
                 return new IntN(bytes, this.unsigned);
             };
 

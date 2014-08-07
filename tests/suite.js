@@ -246,9 +246,10 @@ var suite = {
             test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0] }), false);
             test.strictEqual(Int32.isIntN({ unsigned: false }), false);
             test.strictEqual(Int32.isIntN({ bytes: [0,0,0], unsigned: false }), false);
-            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false }), true);
-            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false, foo: "bar" }), true);
-            test.strictEqual(Int32.isIntN({ bytes: [256,0,0,0], unsigned: false, foo: "bar" }), true); // This is not checked
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false }), false);
+            test.strictEqual(Int32.isIntN({ bytes: [0,0,0,0], unsigned: false, foo: "bar" }), false);
+            test.strictEqual(Int32.isIntN({ bytes: [256,0,0,0], unsigned: false, foo: "bar" }), false);
+            test.strictEqual(Int32.isIntN(Int32.ONE), true);
             test.done();
         },
         

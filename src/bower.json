@@ -1,0 +1,10 @@
+{
+    "name": "intn",
+    "version": "/*?= VERSION */",
+    "author": "Daniel Wirtz <dcode@dcode.io>",
+    "description": "A library for representing and working with arbitrary byte size two's complement integers, signed and unsigned.",
+    "main": "dist/IntN.js",
+    "keywords": ["math", "byte", "short", "integer", "long", "bitwise", "arithmetic", "signed", "unsigned"],
+    "dependencies": {},
+    "license": "Apache-2.0"
+}
