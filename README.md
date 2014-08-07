@@ -1,4 +1,3 @@
-<img align="right" src="https://travis-ci.org/dcodeIO/IntN.js.svg?branch=master" />
 ![IntN.js - Arbitrary byte size integers in JavaScript](https://raw.github.com/dcodeIO/IntN.js/master/IntN.png)
 =======
 **IntN.js** is a library for representing and working with arbitrary byte size two's complement integers in JavaScript,
@@ -658,4 +657,5 @@ Downloads
 * [Tarball](https://github.com/dcodeIO/IntN.js/tarball/master)
 * [Distributions](https://github.com/dcodeIO/IntN.js/tree/master/dist)
 
-**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) -
+[![Build Status](https://travis-ci.org/dcodeIO/IntN.js.svg)](https://travis-ci.org/dcodeIO/IntN.js)
