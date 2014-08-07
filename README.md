@@ -4,6 +4,8 @@
 both signed and unsigned. Its purpose is to provide a robust and convenient way to work with data types that are not
 available in JavaScript natively, like 64 bit `long`s.
 
+[![Build Status](https://travis-ci.org/dcodeIO/IntN.js.svg)](https://travis-ci.org/dcodeIO/IntN.js)
+
 Usage
 -----
 The module exports a function that creates singleton classes representing integers of the specified size in bits
@@ -657,5 +659,4 @@ Downloads
 * [Tarball](https://github.com/dcodeIO/IntN.js/tarball/master)
 * [Distributions](https://github.com/dcodeIO/IntN.js/tree/master/dist)
 
-**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) -
-[![Build Status](https://travis-ci.org/dcodeIO/IntN.js.svg)](https://travis-ci.org/dcodeIO/IntN.js)
+**License:** [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
