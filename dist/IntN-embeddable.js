@@ -65,7 +65,6 @@ var IntN = (function() {
             /**
              * Represented byte values, least significant first.
              * @type {!Array.<number>}
-             * @expose
              */
             this.bytes = new Array(nBytes);
 
@@ -77,7 +76,6 @@ var IntN = (function() {
             /**
              * Whether unsigned or otherwise signed.
              * @type {boolean}
-             * @expose
              */
             this.unsigned = !!unsigned;
         }
@@ -86,7 +84,6 @@ var IntN = (function() {
          * Number of bits represented by this IntN class.
          * @type {number}
          * @const
-         * @expose
          */
         IntN.BITS = nBits|0;
 
@@ -94,7 +91,6 @@ var IntN = (function() {
          * Number of bytes represented by this IntN class.
          * @type {number}
          * @const
-         * @expose
          */
         IntN.BYTES = nBytes;
 
@@ -104,17 +100,15 @@ var IntN = (function() {
          * Tests if an object is an N bit integer, where N is this class's number of bits.
          * @param {*} obj Object to test
          * @returns {boolean} `true` if it is an N bit integer, otherwise `false`
-         * @expose
          */
         IntN.isIntN = function(obj) {
-            return obj instanceof IntN;
+            return (obj && obj instanceof IntN) === true;
         };
 
         /**
          * Converts the specified value to an IntN.
          * @param {!IntN|number|string|!{bytes: !Array.<number>, unsigned: boolean}|{low: number, high: number, unsigned: boolean}} val Value
          * @returns {!IntN}
-         * @expose
          */
         IntN.valueOf = function(val) {
             if (typeof val === 'number')
@@ -132,16 +126,15 @@ var IntN = (function() {
 
         /**
          * Casts this IntN of size N to the specified target IntN of size M.
-         * @param {!Function} TargetIntN Target IntN class
+         * @param {!Function} IntM Target IntN class
          * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
          * @returns {!IntN}
-         * @expose
          */
-        IntN.prototype.cast = function(TargetIntN, unsigned) {
+        IntN.prototype.cast = function(IntM, unsigned) {
             unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
             var retainMsb = this.isNegative(),
                 val = retainMsb ? this.not() : this;
-            val = new TargetIntN(val.bytes, unsigned);
+            val = new IntM(val.bytes, unsigned);
             return retainMsb ? val.not() : val;
         };
 
@@ -151,7 +144,6 @@ var IntN = (function() {
          * Signed zero.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.ZERO = new IntN([], false);
 
@@ -159,7 +151,6 @@ var IntN = (function() {
          * Unsigned zero.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.UZERO = new IntN([], true);
 
@@ -167,7 +158,6 @@ var IntN = (function() {
          * Signed one.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.ONE = new IntN([1], false);
 
@@ -175,7 +165,6 @@ var IntN = (function() {
          * Unsigned one.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.UONE = new IntN([1], true);
 
@@ -183,7 +172,6 @@ var IntN = (function() {
          * Minimum signed value.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.MIN_VALUE = new IntN(zeroes.slice(0, nBytes));
         IntN.MIN_VALUE.bytes[maxIndex] |= 0x80;
@@ -192,7 +180,6 @@ var IntN = (function() {
          * Maximum signed value.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.MAX_VALUE = new IntN(ones.slice(0, nBytes));
         IntN.MAX_VALUE.bytes[maxIndex] &= 0x7f;
@@ -201,7 +188,6 @@ var IntN = (function() {
          * Maximum unsigned value.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.MAX_UNSIGNED_VALUE = new IntN(ones.slice(0, nBytes), true);
 
@@ -210,7 +196,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is signed.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isSigned = function() {
             return !this.unsigned;
@@ -219,7 +204,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is unsigned.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isUnsigned = function() {
             return this.unsigned;
@@ -228,9 +212,8 @@ var IntN = (function() {
         // Signed conversion
 
         /**
-         * Converts this IntN to signed and returns the result.
-         * @returns {!IntN}
-         * @expose
+         * Converts this IntN to signed.
+         * @returns {!IntN} Signed IntN
          */
         IntN.prototype.toSigned = function() {
             if (!this.unsigned)
@@ -239,9 +222,8 @@ var IntN = (function() {
         };
 
         /**
-         * Converts this IntN to unsigned and returns the result.
-         * @returns {!IntN}
-         * @expose
+         * Converts this IntN to unsigned.
+         * @returns {!IntN} Unsigned IntN
          */
         IntN.prototype.toUnsigned = function() {
             if (this.unsigned)
@@ -249,12 +231,11 @@ var IntN = (function() {
             return new IntN(this.bytes, true);
         };
 
-        // Arithmetic evalutation
+        // Arithmetic evaluation
 
         /**
          * Tests if this IntN is (signed and) negative.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isNegative = function() {
             return !this.unsigned && (this.bytes[maxIndex] & 0x80) === 0x80;
@@ -263,7 +244,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is (unsigned or) positive.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isPositive = function() {
             return this.unsigned || (this.bytes[maxIndex] & 0x80) === 0;
@@ -272,7 +252,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is even.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isEven = function() {
             return (this.bytes[0] & 1) === 0;
@@ -281,7 +260,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is odd.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isOdd = function() {
             return (this.bytes[0] & 1) === 1;
@@ -290,7 +268,6 @@ var IntN = (function() {
         /**
          * Tests if this IntN is zero.
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.isZero = function() {
             for (var i=0; i<nBytes; ++i)
@@ -303,7 +280,6 @@ var IntN = (function() {
          * Compares this IntN with the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {number} `0` if both are the same, `1` if this is greater and `-1` if the specified is greater
-         * @expose
          */
         IntN.prototype.compare = function(other) {
             if (!IntN.isIntN(other))
@@ -323,7 +299,6 @@ var IntN = (function() {
          * Tests if this IntN equals the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.equals = function(other) {
             return this.compare(other) === 0;
@@ -333,47 +308,42 @@ var IntN = (function() {
          * Tests if this IntN does not equal the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.notEquals = function(other) {
             return this.compare(other) !== 0;
         };
 
         /**
-         * Tests if this IntN is less than (&lt;) the specified.
+         * Tests if this IntN is less than the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.lessThan = function(other) {
             return this.compare(other) === -1;
         };
 
         /**
-         * Tests if this IntN is less than or equal (&lt;=) the specified.
+         * Tests if this IntN is less than or equal the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.lessThanEqual = function(other) {
             return this.compare(other) <= 0;
         };
 
         /**
-         * Tests if this IntN is greater than (&gt;) the specified.
+         * Tests if this IntN is greater than the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.greaterThan = function(other) {
             return this.compare(other) === 1;
         };
 
         /**
-         * Tests if this IntN is greater than or equal (&gt;=) the specified.
+         * Tests if this IntN is greater than or equal the specified.
          * @param {!IntN|number|string} other Other value
          * @returns {boolean}
-         * @expose
          */
         IntN.prototype.greaterThanEqual = function(other) {
             return this.compare(other) >= 0;
@@ -386,30 +356,25 @@ var IntN = (function() {
          * @param {number} value Integer value
          * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
          * @returns {!IntN}
-         * @expose
          */
         IntN.fromInt = function(value, unsigned) {
             value = value|0;
-            var val;
             if (value < 0) {
                 if (value === int32_min_value) // -MIN_VALUE = MIN_VALUE
                     return IntN.MIN_VALUE;
-                val = IntN.fromInt(-value, unsigned).negate();
-                return val;
+                return IntN.fromInt(-value, unsigned).negate();
             }
             var bytes = zeroes.slice(0, nBytes);
             for (var i=0; i<nBytes && value !== 0; ++i)
                 bytes[i] = value & 0xff,
                 value = value >>> 8;
-            val = new IntN(bytes, unsigned);
-            return val;
+            return new IntN(bytes, unsigned);
         };
 
         /**
          * Converts this IntN to a 32 bit integer.
          * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
          * @returns {number}
-         * @expose
          */
         IntN.prototype.toInt = function(unsigned) {
             unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
@@ -427,7 +392,6 @@ var IntN = (function() {
          * @param {!Array.<number>} ints Array of 32 bit integers
          * @param {boolean=} unsigned Whether unsigned or not, defaults to `false` for signed
          * @returns {!IntN}
-         * @expose
          */
         IntN.fromInts = function(ints, unsigned) {
             var result = IntN.ZERO;
@@ -445,7 +409,6 @@ var IntN = (function() {
         /**
          * Disassembles this IntN into an array of 32 bit integers, least significant first.
          * @returns {!Array.<number>}
-         * @expose
          */
         IntN.prototype.toInts = function() {
             var numInts = Math.ceil(nBytes/4),
@@ -470,7 +433,6 @@ var IntN = (function() {
          * @returns {!IntN}
          * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
          * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
-         * @expose
          */
         IntN.fromNumber = function(value, unsigned) {
             if (typeof value !== 'number')
@@ -493,7 +455,6 @@ var IntN = (function() {
          * @returns {number}
          * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MIN_SAFE_INTEGER
          * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
-         * @expose
          */
         IntN.prototype.toNumber = function() {
             if (this.isNegative())
@@ -509,7 +470,6 @@ var IntN = (function() {
         /**
          * Performs a bitwise not (~) operation and returns the result.
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.not = function() {
             for (var i=0, bytes=new Array(nBytes); i<nBytes; ++i)
@@ -521,7 +481,6 @@ var IntN = (function() {
          * Performs a bitwise and (&) operation and returns the resulting Int.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.and = function(other) {
             if (!IntN.isIntN(other))
@@ -535,7 +494,6 @@ var IntN = (function() {
          * Performs a bitwise or (&#124;) operation and returns the resulting Int.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.or = function(other) {
             if (!IntN.isIntN(other))
@@ -549,7 +507,6 @@ var IntN = (function() {
          * Performs a bitwise xor (^) operation and returns the result.
          * @param {!IntN|number|string} other Other number
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.xor = function(other) {
             if (!IntN.isIntN(other))
@@ -563,7 +520,6 @@ var IntN = (function() {
          * Performs a shift left (&lt;&lt;) operation and returns the result.
          * @param {!IntN|number} numBits Number of bits
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.shiftLeft = function(numBits) {
             if (IntN.isIntN(numBits))
@@ -591,7 +547,6 @@ var IntN = (function() {
          * @param {boolean=} logical Whether to perform a logical (&gt;&gt;&gt;) shift right, defaults to `false` for an arithmetic
          *  shift right (&gt;&gt;)
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.shiftRight = function(numBits, logical) {
             if (IntN.isIntN(numBits))
@@ -623,7 +578,6 @@ var IntN = (function() {
          * Performs an unsigned shift right (&gt;&gt;&gt;) operation and returns the result.
          * @param {!IntN|number} numBits Number of bits
          * @returns {!IntN} Shifted
-         * @expose
          */
         IntN.prototype.shiftRightUnsigned = function(numBits) {
             return this.shiftRight(numBits, true);
@@ -633,7 +587,6 @@ var IntN = (function() {
          * Evaluates the bit at the specified position. Using this method is usually much faster than alternative ways.
          * @param {number} i Position (0 to (N-1))
          * @returns {boolean} `true` if the bit is 1, `false` if it is 0
-         * @expose
          */
         IntN.prototype.isSet = function(i) {
             return (this.bytes[(i/8)|0] & (i=1<<(i%8))) === i;
@@ -645,7 +598,6 @@ var IntN = (function() {
          * @param {number} i Position (0 to (N-1))
          * @param {boolean} isSet `true` to set the bit to 1, `false` to set it to 0
          * @returns {!IntN}
-         * @expose
          */
         IntN.prototype.set = function(i, isSet) {
             if (i >= nBits || this.isSet(i) == isSet)
@@ -661,7 +613,6 @@ var IntN = (function() {
         /**
          * Returns the number of bits required to fully represent this IntN's value.
          * @returns {number} Shift of the most significant bit (0 to N)
-         * @expose
          */
         IntN.prototype.size = function() {
             for (var i=maxIndex, byt, j=1; i>=0; --i)
@@ -680,7 +631,6 @@ var IntN = (function() {
          * @param {!IntN} augend Augend
          * @param {!IntN} addend Addend
          * @returns {!IntN} Sum
-         * @expose
          */
         IntN.add = function(augend, addend) {
             var carry = augend.and(addend),
@@ -697,7 +647,6 @@ var IntN = (function() {
          * Adds the specified to this IntN.
          * @param {!IntN|number|string} addend Addend
          * @returns {!IntN} Sum
-         * @expose
          */
         IntN.prototype.add = function(addend) {
             if (!IntN.isIntN(addend))
@@ -708,7 +657,6 @@ var IntN = (function() {
         /**
          * Negates this IntN (*-1).
          * @returns {!IntN} Negation
-         * @expose
          */
         IntN.prototype.negate = function() {
             return IntN.add(this.not(), IntN.ONE);
@@ -718,7 +666,6 @@ var IntN = (function() {
          * Negative signed one.
          * @type {!IntN}
          * @const
-         * @expose
          */
         IntN.NEG_ONE = IntN.ONE.negate();
 
@@ -727,7 +674,6 @@ var IntN = (function() {
          * @param {!IntN} minuend Minuend
          * @param {!IntN} subtrahend Subtrahend
          * @returns {!IntN} Difference
-         * @expose
          */
         IntN.subtract = function(minuend, subtrahend) {
             return IntN.add(minuend, subtrahend.negate());
@@ -737,7 +683,6 @@ var IntN = (function() {
          * Subtracts the specified from this IntN and returns the difference.
          * @param {!IntN|number|string} subtrahend Subtrahend
          * @returns {!IntN} Difference
-         * @expose
          */
         IntN.prototype.subtract = function(subtrahend) {
             if (!IntN.isIntN(subtrahend))
@@ -748,7 +693,6 @@ var IntN = (function() {
         /**
          * Returns this IntN's absolute value as an unsigned IntN.
          * @returns {!IntN} Absolute
-         * @expose
          */
         IntN.prototype.absolute = function() {
             if (this.unsigned)
@@ -761,7 +705,6 @@ var IntN = (function() {
          * @param {!IntN} multiplicand Multiplicand
          * @param {!IntN} multiplier Multiplier
          * @returns {!IntN} Product
-         * @expose
          */
         IntN.multiply = function(multiplicand, multiplier) {
             var result = multiplicand.unsigned ? IntN.UZERO : IntN.ZERO;
@@ -783,7 +726,6 @@ var IntN = (function() {
          * Multiplies this IntN with the specified and returns the product.
          * @param {!IntN|number|string} multiplier Multiplier
          * @returns {!IntN} Product
-         * @expose
          */
         IntN.prototype.multiply = function(multiplier) {
             if (!IntN.isIntN(multiplier))
@@ -797,7 +739,6 @@ var IntN = (function() {
          * @param {!IntN} dividend Dividend
          * @param {!IntN} divisor Divisor
          * @returns {!{quotient: !IntN, remainder: !IntN}} Quotient and remainder
-         * @expose
          */
         IntN.divide = function(dividend, divisor) {
             if (divisor.isZero())
@@ -833,7 +774,6 @@ var IntN = (function() {
          * Divides this IntN by the specified and returns the quotient.
          * @param {!IntN|number|string} divisor Divisor
          * @returns {!IntN} Quotient
-         * @expose
          */
         IntN.prototype.divide = function(divisor) {
             if (!IntN.isIntN(divisor))
@@ -845,7 +785,6 @@ var IntN = (function() {
          * Divides this IntN by the specified and returns the remainder.
          * @param {!IntN|number|string} divisor Divisor
          * @returns {!IntN} Remainder
-         * @expose
          */
         IntN.prototype.modulo = function(divisor) {
             if (!IntN.isIntN(divisor))
@@ -858,7 +797,6 @@ var IntN = (function() {
          *  testing and debugging, followed by the character `U` if unsigned.
          * @param {boolean=} addSpaces Whether to insert spaces between bytes, defaults to `false`
          * @returns {string}
-         * @expose
          */
         IntN.prototype.toDebug = function(addSpaces) {
             for (var i=maxIndex, byt, out=""; i>=0; --i) {
@@ -900,7 +838,6 @@ var IntN = (function() {
          * @returns {!IntN}
          * @throws {RangeError} If `radix` is out of range
          * @throws {Error} If `value` contains illegal characters
-         * @expose
          */
         IntN.fromString = function(value, unsigned, radix) {
             if (typeof unsigned === 'number')
@@ -937,7 +874,6 @@ var IntN = (function() {
          * @param {!IntN|number|string} radix Radix (2-36), defaults to 10
          * @returns {string}
          * @throws {RangeError} If `radix` is out of range
-         * @expose
          */
         IntN.prototype.toString = function(radix) {
             radix = radix || 10;

@@ -125,7 +125,7 @@
              * @expose
              */
             IntN.isIntN = function(obj) {
-                return obj instanceof IntN;
+                return (obj && obj instanceof IntN) === true;
             };
 
             /**
@@ -150,16 +150,16 @@
 
             /**
              * Casts this IntN of size N to the specified target IntN of size M.
-             * @param {!Function} TargetIntN Target IntN class
+             * @param {!Function} IntM Target IntN class
              * @param {boolean=} unsigned Whether unsigned or not, defaults to this' {@link IntN#unsigned}
              * @returns {!IntN}
              * @expose
              */
-            IntN.prototype.cast = function(TargetIntN, unsigned) {
+            IntN.prototype.cast = function(IntM, unsigned) {
                 unsigned = typeof unsigned === 'boolean' ? unsigned : this.unsigned;
                 var retainMsb = this.isNegative(),
                     val = retainMsb ? this.not() : this;
-                val = new TargetIntN(val.bytes, unsigned);
+                val = new IntM(val.bytes, unsigned);
                 return retainMsb ? val.not() : val;
             };
 
@@ -246,8 +246,8 @@
             // Signed conversion
 
             /**
-             * Converts this IntN to signed and returns the result.
-             * @returns {!IntN}
+             * Converts this IntN to signed.
+             * @returns {!IntN} Signed IntN
              * @expose
              */
             IntN.prototype.toSigned = function() {
@@ -257,8 +257,8 @@
             };
 
             /**
-             * Converts this IntN to unsigned and returns the result.
-             * @returns {!IntN}
+             * Converts this IntN to unsigned.
+             * @returns {!IntN} Unsigned IntN
              * @expose
              */
             IntN.prototype.toUnsigned = function() {
@@ -267,7 +267,7 @@
                 return new IntN(this.bytes, true);
             };
 
-            // Arithmetic evalutation
+            // Arithmetic evaluation
 
             /**
              * Tests if this IntN is (signed and) negative.
@@ -358,7 +358,7 @@
             };
 
             /**
-             * Tests if this IntN is less than (&lt;) the specified.
+             * Tests if this IntN is less than the specified.
              * @param {!IntN|number|string} other Other value
              * @returns {boolean}
              * @expose
@@ -368,7 +368,7 @@
             };
 
             /**
-             * Tests if this IntN is less than or equal (&lt;=) the specified.
+             * Tests if this IntN is less than or equal the specified.
              * @param {!IntN|number|string} other Other value
              * @returns {boolean}
              * @expose
@@ -378,7 +378,7 @@
             };
 
             /**
-             * Tests if this IntN is greater than (&gt;) the specified.
+             * Tests if this IntN is greater than the specified.
              * @param {!IntN|number|string} other Other value
              * @returns {boolean}
              * @expose
@@ -388,7 +388,7 @@
             };
 
             /**
-             * Tests if this IntN is greater than or equal (&gt;=) the specified.
+             * Tests if this IntN is greater than or equal the specified.
              * @param {!IntN|number|string} other Other value
              * @returns {boolean}
              * @expose
@@ -408,19 +408,16 @@
              */
             IntN.fromInt = function(value, unsigned) {
                 value = value|0;
-                var val;
                 if (value < 0) {
                     if (value === int32_min_value) // -MIN_VALUE = MIN_VALUE
                         return IntN.MIN_VALUE;
-                    val = IntN.fromInt(-value, unsigned).negate();
-                    return val;
+                    return IntN.fromInt(-value, unsigned).negate();
                 }
                 var bytes = zeroes.slice(0, nBytes);
                 for (var i=0; i<nBytes && value !== 0; ++i)
                     bytes[i] = value & 0xff,
                     value = value >>> 8;
-                val = new IntN(bytes, unsigned);
-                return val;
+                return new IntN(bytes, unsigned);
             };
 
             /**
